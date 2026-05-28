@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Design System Preview</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --panel-soft:#f7f9fd;
+      --line:#d7deea;
+      --text:#121826;
+      --muted:#667085;
+      --green:#0b9b73;
+      --green-soft:#def7ee;
+      --blue:#2d90ff;
+      --blue-soft:#eaf4ff;
+      --pink:#ef4f79;
+      --pink-soft:#ffe8ef;
+      --gold:#f0ab3d;
+      --gold-soft:#fff3df;
+      --shadow:0 18px 54px rgba(15,23,42,.08);
+      --radius:24px;
+      --font:"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(circle at 0 0, rgba(45,144,255,.09), transparent 22%),
+        radial-gradient(circle at 100% 0, rgba(239,79,121,.08), transparent 20%),
+        linear-gradient(180deg,#fbfcff 0%,var(--bg) 100%);
+    }
+    .wrap{max-width:1440px;margin:0 auto;padding:28px 24px 56px}
+    .card{
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(215,222,234,.92);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(10px);
+    }
+    .hero{display:grid;grid-template-columns:1.06fr .94fr;gap:18px;margin-bottom:20px}
+    .hero-main{padding:28px 30px}
+    .eyebrow{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:13px;font-weight:800}
+    h1{margin:14px 0 12px;font-size:34px;line-height:1.15}
+    .sub{margin:0;color:var(--muted);font-size:16px;line-height:1.78;max-width:720px}
+    .hero-side{padding:24px}
+    .mini-title{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+    .stack{display:grid;gap:12px}
+    .glance{padding:14px 16px;border-radius:18px;background:var(--panel-soft);border:1px solid var(--line)}
+    .glance strong{display:block;font-size:15px;margin-bottom:6px}
+    .glance span{display:block;color:var(--muted);font-size:13px;line-height:1.65}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .option{padding:18px}
+    .head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .tag{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+    .tag.green{background:var(--green-soft);color:var(--green)}
+    .tag.blue{background:var(--blue-soft);color:var(--blue)}
+    .tag.pink{background:var(--pink-soft);color:var(--pink)}
+    .option h2{margin:0;font-size:21px}
+    .option p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .mock{
+      margin-top:16px;height:560px;display:flex;flex-direction:column;
+      border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#fcfdff 0%,#f2f5fa 100%);
+    }
+    .mock-bar{
+      height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+      border-bottom:1px solid var(--line);background:#fff;flex-shrink:0;
+    }
+    .mock-title{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:800}
+    .dot{width:9px;height:9px;border-radius:50%}
+    .dot.green{background:var(--green)}
+    .dot.blue{background:var(--blue)}
+    .dot.pink{background:var(--pink)}
+    .mock-body{flex:1;min-height:0;padding:14px;display:grid;gap:12px}
+    .layout-a{grid-template-columns:240px 1fr}
+    .layout-b{grid-template-columns:220px .8fr .9fr}
+    .layout-c{grid-template-columns:240px 1fr}
+    .panel,.list,.inspector{
+      min-height:0;border-radius:18px;border:1px solid var(--line);background:#fff;
+    }
+    .panel{padding:14px;display:flex;flex-direction:column;gap:10px}
+    .folder{
+      padding:12px;border-radius:16px;background:var(--panel-soft);border:1px solid transparent;
+    }
+    .folder.active{background:#edf6ff;border-color:#afd3ff}
+    .folder h3{margin:0 0 6px;font-size:15px}
+    .folder small{display:block;color:var(--muted);line-height:1.55}
+    .inspector{padding:14px;display:grid;gap:12px}
+    .subhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .subhead strong{font-size:18px}
+    .pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+    .pill.green{background:var(--green-soft);color:var(--green)}
+    .pill.gold{background:var(--gold-soft);color:#9b6418}
+    .pill.pink{background:var(--pink-soft);color:var(--pink)}
+    .bucket{
+      border-radius:16px;border:1px solid var(--line);padding:14px;background:#fff;display:grid;gap:12px;
+    }
+    .bucket-title{font-size:15px;font-weight:800}
+    .rows{display:grid;gap:10px}
+    .row{display:grid;grid-template-columns:110px 1fr 58px;gap:10px;align-items:center}
+    .row label{font-size:13px;color:var(--muted)}
+    .slider{height:8px;border-radius:999px;background:#e8edf5;position:relative;overflow:hidden}
+    .slider::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--fill,58%);background:linear-gradient(90deg,var(--green),#58d9a2);border-radius:999px}
+    .value{font-size:12px;font-weight:700;text-align:right}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
+    .schema-list{display:grid;gap:10px}
+    .schema-row{
+      display:grid;grid-template-columns:118px 1fr;gap:10px;padding:12px;border-radius:14px;background:var(--panel-soft);border:1px solid var(--line)
+    }
+    .schema-row strong{font-size:13px}
+    .schema-row span{font-size:13px;color:var(--muted);line-height:1.6}
+    .mood-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mood{
+      min-height:96px;padding:12px;border-radius:16px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between
+    }
+    .mood.green{background:linear-gradient(180deg,#effdf6,#fff)}
+    .mood.blue{background:linear-gradient(180deg,#eef6ff,#fff)}
+    .mood.pink{background:linear-gradient(180deg,#fff1f5,#fff)}
+    .mood.gold{background:linear-gradient(180deg,#fff8ea,#fff)}
+    .mood b{font-size:15px}
+    .mood span{font-size:12px;color:var(--muted);line-height:1.6}
+    .map-box{border-radius:16px;border:1px solid var(--line);padding:14px;background:#fff;display:grid;gap:10px}
+    .flow{display:grid;gap:10px}
+    .flow-step{
+      padding:12px;border-radius:14px;background:var(--panel-soft);border:1px solid var(--line)
+    }
+    .flow-step strong{display:block;font-size:14px;margin-bottom:4px}
+    .flow-step span{display:block;font-size:13px;color:var(--muted);line-height:1.6}
+    .footer{
+      margin-top:18px;padding:18px 20px;border-radius:20px;background:#fff;border:1px solid var(--line);line-height:1.8;color:var(--muted);font-size:14px
+    }
+    @media (max-width:1200px){
+      .hero,.grid{grid-template-columns:1fr}
+      .mock{height:auto;min-height:560px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">面向任何游戏的设计系统</div>
+        <h1>真正该做的不是“蛇身 / 樱桃炸弹”的表单，而是一个可换游戏的通用参数框架</h1>
+        <p class="sub">
+          同一个设计工具以后要服务贪吃蛇、植物塔防、平台跳跃、卡牌战斗，甚至聊天式玩法。所以第一层必须是
+          <strong>通用参数框架</strong>，第二层才是每个游戏自己的 <strong>游戏 schema</strong>，第三层再叠加
+          <strong>vibe 语义层</strong>，把“春日、危险、软萌、机械”这种抽象词映射成成组参数。
+        </p>
+      </div>
+      <div class="card hero-side">
+        <div class="mini-title">三层结构一眼看懂</div>
+        <div class="stack">
+          <div class="glance">
+            <strong>1. 通用参数框架</strong>
+            <span>先定义所有游戏都通用的对象与能力类别，比如 场景 / 角色 Actor / 能力 Ability / 资源 / 规则 / 表现。</span>
+          </div>
+          <div class="glance">
+            <strong>2. 游戏 schema</strong>
+            <span>每个游戏只提供自己的对象目录和参数字典。换游戏时换 schema，不需要重写整个 UI。</span>
+          </div>
+          <div class="glance">
+            <strong>3. vibe 语义层</strong>
+            <span>把抽象氛围词映射成参数组合，让“危险感”“春日感”“软萌感”变成可落地的调参。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card option">
+        <div class="head">
+          <h2>通用参数框架</h2>
+          <span class="tag green">底层骨架</span>
+        </div>
+        <p>这一层不绑定具体游戏，而是先定义“任何游戏都会有的对象类别”。设计工具 UI 只负责把这些类别渲染成目录和检查器。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot green"></span>Universal Parameter Framework</div>
+            <span class="pill green">以后换游戏也不重做 UI</span>
+          </div>
+          <div class="mock-body layout-a">
+            <div class="panel">
+              <div class="folder active">
+                <h3>场景 Scene</h3>
+                <small>画布、地图、镜头、昼夜、天气、背景层</small>
+              </div>
+              <div class="folder">
+                <h3>角色 Actor</h3>
+                <small>玩家、敌人、NPC、召唤物、伙伴</small>
+              </div>
+              <div class="folder">
+                <h3>能力 Ability</h3>
+                <small>攻击范围、冷却、能量、伤害、弹道、触发条件</small>
+              </div>
+              <div class="folder">
+                <h3>资源 Resource</h3>
+                <small>血量、金币、阳光、经验、魔法、体力</small>
+              </div>
+              <div class="folder">
+                <h3>规则 Rules</h3>
+                <small>胜负条件、刷新节奏、碰撞、升级、生成逻辑</small>
+              </div>
+              <div class="folder">
+                <h3>表现 Feedback</h3>
+                <small>粒子、音效、震动、HUD、提示、死亡演出</small>
+              </div>
+            </div>
+            <div class="inspector">
+              <div class="subhead">
+                <strong>场景 Scene</strong>
+                <span class="pill gold">通用类别</span>
+              </div>
+              <div class="bucket">
+                <div class="bucket-title">默认参数槽</div>
+                <div class="rows">
+                  <div class="row"><label>画布大小</label><div class="slider" style="--fill:62%"></div><div class="value">可选</div></div>
+                  <div class="row"><label>相机缩放</label><div class="slider" style="--fill:41%"></div><div class="value">可选</div></div>
+                  <div class="row"><label>背景层数</label><div class="slider" style="--fill:35%"></div><div class="value">可选</div></div>
+                </div>
+              </div>
+              <div class="bucket">
+                <div class="bucket-title">参数命名规范</div>
+                <div class="chips">
+                  <span class="chip">scene.canvas.width</span>
+                  <span class="chip">scene.canvas.height</span>
+                  <span class="chip">scene.grid.size</span>
+                  <span class="chip">feedback.hitShake</span>
+                  <span class="chip">ability.cooldown</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card option">
+        <div class="head">
+          <h2>游戏 schema</h2>
+          <span class="tag blue">每个游戏自定义</span>
+        </div>
+        <p>通用框架只提供槽位，真正让 UI “知道这个游戏有什么东西”的，是每个游戏自己的 schema。比如贪吃蛇和平台跳跃，可以完全不是一套对象，但仍共用同一套设计工具。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot blue"></span>Game Schema Layer</div>
+            <span class="pill gold">只换 schema，不换工具</span>
+          </div>
+          <div class="mock-body layout-b">
+            <div class="panel">
+              <div class="folder active">
+                <h3>贪吃蛇 schema</h3>
+                <small>背景 / 自己 / 食物 / 规则</small>
+              </div>
+              <div class="folder">
+                <h3>植物塔防 schema</h3>
+                <small>地块 / 植物 / 僵尸 / 阳光 / 波次</small>
+              </div>
+              <div class="folder">
+                <h3>平台跳跃 schema</h3>
+                <small>主角 / 地形 / 敌人 / 掉落 / 关卡节奏</small>
+              </div>
+            </div>
+            <div class="inspector">
+              <div class="subhead">
+                <strong>schema 结构</strong>
+                <span class="pill green">目录来源</span>
+              </div>
+              <div class="schema-list">
+                <div class="schema-row">
+                  <strong>scene</strong>
+                  <span>canvas.width, canvas.height, grid.size, background.fill</span>
+                </div>
+                <div class="schema-row">
+                  <strong>actor.player</strong>
+                  <span>body.width, head.radius, tail.fade, move.speed</span>
+                </div>
+                <div class="schema-row">
+                  <strong>ability.cherryBomb</strong>
+                  <span>range, cost, damage, delay, blast.fxIntensity</span>
+                </div>
+                <div class="schema-row">
+                  <strong>rules</strong>
+                  <span>levelUp.step, fail.onSelfHit, move.wrapAround</span>
+                </div>
+              </div>
+            </div>
+            <div class="inspector">
+              <div class="subhead">
+                <strong>同一套工具里的不同游戏</strong>
+                <span class="pill pink">你以后扩游戏就靠它</span>
+              </div>
+              <div class="bucket">
+                <div class="bucket-title">贪吃蛇</div>
+                <div class="chips">
+                  <span class="chip">背景 &gt; 画布大小</span>
+                  <span class="chip">自己 &gt; 蛇身 &gt; 宽度</span>
+                  <span class="chip">食物 &gt; 半径</span>
+                </div>
+              </div>
+              <div class="bucket">
+                <div class="bucket-title">植物塔防</div>
+                <div class="chips">
+                  <span class="chip">植物 &gt; 樱桃炸弹 &gt; 攻击范围</span>
+                  <span class="chip">植物 &gt; 樱桃炸弹 &gt; 所需能量</span>
+                  <span class="chip">植物 &gt; 樱桃炸弹 &gt; 杀伤力</span>
+                </div>
+              </div>
+              <div class="bucket">
+                <div class="bucket-title">平台跳跃</div>
+                <div class="chips">
+                  <span class="chip">角色 &gt; 二段跳 &gt; 高度</span>
+                  <span class="chip">敌人 &gt; 巡逻兵 &gt; 视野</span>
+                  <span class="chip">场景 &gt; 陷阱 &gt; 刷新节奏</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card option">
+        <div class="head">
+          <h2>vibe 语义层</h2>
+          <span class="tag pink">让“感觉”变成参数</span>
+        </div>
+        <p>这层不是替代具体参数，而是站在参数之上。用户先说“我要更危险、更春日、更软萌”，系统再把这些语义映射成一整组数值变化。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot pink"></span>Vibe Semantic Layer</div>
+            <span class="pill pink">更适合你说的 vibe design</span>
+          </div>
+          <div class="mock-body layout-c">
+            <div class="panel">
+              <div class="folder active">
+                <h3>世界观 vibe</h3>
+                <small>春日 / 废土 / 赛博 / 童话 / 机械</small>
+              </div>
+              <div class="folder">
+                <h3>战斗 vibe</h3>
+                <small>危险 / 爽快 / 紧绷 / 沉稳 / 轻松</small>
+              </div>
+              <div class="folder">
+                <h3>角色 vibe</h3>
+                <small>软萌 / 凶狠 / 笨拙 / 灵活 / 沉着</small>
+              </div>
+            </div>
+            <div class="inspector">
+              <div class="subhead">
+                <strong>“危险樱桃炸弹” 的语义映射</strong>
+                <span class="pill green">语义 → 参数</span>
+              </div>
+              <div class="mood-grid">
+                <div class="mood green">
+                  <b>春日</b>
+                  <span>更亮、更轻、更多花粉粒子、伤害显示更柔和</span>
+                </div>
+                <div class="mood pink">
+                  <b>危险</b>
+                  <span>更高饱和、更大爆炸半径、更快预警闪烁</span>
+                </div>
+                <div class="mood blue">
+                  <b>机械</b>
+                  <span>硬边、冷色、爆炸音更脆、UI 更规则</span>
+                </div>
+                <div class="mood gold">
+                  <b>软萌</b>
+                  <span>圆角更大、抖动更轻、危险提示更可爱</span>
+                </div>
+              </div>
+              <div class="map-box">
+                <div class="bucket-title">映射结果</div>
+                <div class="flow">
+                  <div class="flow-step">
+                    <strong>语义输入</strong>
+                    <span>樱桃炸弹 = 春日 40% + 危险 60%</span>
+                  </div>
+                  <div class="flow-step">
+                    <strong>自动翻译</strong>
+                    <span>攻击范围 +1、爆炸色偏暖、烟雾透明度降低、预警节奏加快</span>
+                  </div>
+                  <div class="flow-step">
+                    <strong>最终落地</strong>
+                    <span>仍回写到具体参数目录里，用户可以继续细调，不会变成黑盒。</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer card">
+      我的推荐顺序是：<strong>先做通用参数框架 + 游戏 schema</strong>，先把“任何游戏都能挂进去”的目录系统建起来；  
+      然后第二阶段再做 <strong>vibe 语义层</strong>，让抽象风格词去批量调参。  
+      这样你以后不管做贪吃蛇、植物塔防、平台跳跃还是别的玩法，这个设计工具都不用推倒重来。
+    </div>
+  </div>
+</body>
+</html>
