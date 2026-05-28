@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多窗口设计工作台预览</title>
+  <style>
+    :root{
+      --bg:#f3f1ec;
+      --panel:#ffffff;
+      --panel-soft:#f8f6f2;
+      --line:#d8d2c8;
+      --text:#18202b;
+      --muted:#68707d;
+      --green:#1f8a70;
+      --green-soft:#e4f2ed;
+      --blue:#4169b0;
+      --blue-soft:#e8eef8;
+      --pink:#c85b75;
+      --pink-soft:#f7e8ed;
+      --gold:#b58a3f;
+      --gold-soft:#f5eddc;
+      --shadow:0 10px 28px rgba(24,32,43,.06);
+      --radius:20px;
+      --font:"IBM Plex Sans","PingFang SC","Microsoft YaHei",sans-serif;
+      --display:"Manrope","IBM Plex Sans","PingFang SC",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+    }
+    .wrap{
+      max-width:1480px;
+      margin:0 auto;
+      padding:24px;
+      display:grid;
+      gap:18px;
+    }
+    .hero{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+      display:grid;
+      gap:16px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      height:32px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #c9d9d0;
+      background:var(--green-soft);
+      color:var(--green);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      justify-self:start;
+    }
+    h1{
+      margin:0;
+      font:800 36px/1.08 var(--display);
+      letter-spacing:-.04em;
+    }
+    .hero p{
+      margin:0;
+      max-width:980px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.8;
+    }
+    .switcher{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .switch{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .switch.is-active{
+      border-color:#bcd0f0;
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+    .switch small{
+      color:var(--muted);
+      font-size:11px;
+      font-weight:600;
+    }
+    .meta{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    .meta-card{
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 16px;
+      display:grid;
+      gap:6px;
+    }
+    .meta-card strong{
+      font-size:15px;
+    }
+    .meta-card span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .schema-note{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      min-height:48px;
+      padding:0 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      font-size:13px;
+      color:var(--muted);
+    }
+    .schema-note strong{
+      color:var(--text);
+      font-size:14px;
+    }
+    .schema-note__badge{
+      display:inline-flex;
+      align-items:center;
+      height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      background:var(--gold-soft);
+      color:var(--gold);
+      border:1px solid #eadcb8;
+      font-size:11px;
+      font-weight:800;
+      flex-shrink:0;
+    }
+
+    .workspace{
+      display:grid;
+      grid-template-columns:280px 1fr 340px;
+      gap:16px;
+      align-items:start;
+    }
+    .stack{
+      display:grid;
+      gap:16px;
+    }
+    .window{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      min-height:220px;
+    }
+    .window-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      height:46px;
+      padding:0 16px;
+      border-bottom:1px solid var(--line);
+      background:#fbfaf7;
+    }
+    .window-title{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font:800 15px/1 var(--display);
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+    .dot.green{background:var(--green)}
+    .dot.blue{background:var(--blue)}
+    .dot.pink{background:var(--pink)}
+    .dot.gold{background:var(--gold)}
+    .window-badge{
+      display:inline-flex;
+      align-items:center;
+      height:26px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+    .window-body{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+
+    .tree-list{
+      display:grid;
+      gap:8px;
+    }
+    .tree-group,.tree-leaf{
+      width:100%;
+      display:grid;
+      gap:4px;
+      text-align:left;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+      border-radius:16px;
+      padding:11px 12px;
+      cursor:pointer;
+    }
+    .tree-group.is-active,.tree-leaf.is-active{
+      border-color:#c1cfe7;
+      background:var(--blue-soft);
+    }
+    .tree-group strong,.tree-leaf strong{
+      font-size:13px;
+    }
+    .tree-group span,.tree-leaf span{
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.55;
+    }
+    .tree-children{
+      display:grid;
+      gap:8px;
+      padding-left:14px;
+      border-left:1px solid var(--line);
+      margin-top:2px;
+    }
+
+    .graph-meta{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .graph-meta strong{
+      display:block;
+      font-size:22px;
+      margin-bottom:4px;
+    }
+    .graph-meta span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .graph-board{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .graph-root{
+      justify-self:center;
+      min-width:180px;
+      min-height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:1px solid #c1cfe7;
+      background:var(--blue-soft);
+      color:var(--blue);
+      font-size:13px;
+      font-weight:800;
+    }
+    .graph-columns{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      align-items:start;
+    }
+    .graph-col{
+      display:grid;
+      gap:10px;
+    }
+    .graph-node{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+      padding:12px;
+      display:grid;
+      gap:4px;
+      cursor:pointer;
+    }
+    .graph-node.is-active{
+      border-color:#c1cfe7;
+      background:var(--blue-soft);
+    }
+    .graph-node strong{
+      font-size:13px;
+    }
+    .graph-node span{
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.55;
+    }
+    .graph-link{
+      font-size:11px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    .inspector-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .inspector-head strong{
+      font-size:20px;
+      line-height:1.2;
+    }
+    .inspector-head span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+      display:block;
+      margin-top:4px;
+    }
+    .inspector-badge{
+      display:inline-flex;
+      align-items:center;
+      height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      background:var(--green-soft);
+      color:var(--green);
+      border:1px solid #c8ddd5;
+      font-size:11px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .field-list{
+      display:grid;
+      gap:10px;
+    }
+    .field{
+      display:grid;
+      grid-template-columns:110px 1fr 62px;
+      gap:12px;
+      align-items:center;
+    }
+    .field label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .rail{
+      position:relative;
+      height:10px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#e7e3dc;
+    }
+    .rail::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:var(--fill,50%);
+      background:var(--green);
+      border-radius:999px;
+    }
+    .field b{
+      text-align:right;
+      font-size:12px;
+    }
+    .schema-pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .schema-pills span{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+      font-size:11px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color:var(--muted);
+    }
+
+    .skills-head{
+      display:grid;
+      gap:8px;
+    }
+    .skills-head strong{
+      font-size:18px;
+    }
+    .skills-head span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .skill-list{
+      display:grid;
+      gap:10px;
+    }
+    .skill-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel-soft);
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+    .skill-meta{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .skill-code{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 8px;
+      border-radius:999px;
+      border:1px solid #dccfb2;
+      background:var(--gold-soft);
+      color:var(--gold);
+      font-size:10px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight:800;
+    }
+    .skill-card strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+    .skill-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+    .skill-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .skill-tags span{
+      display:inline-flex;
+      align-items:center;
+      min-height:24px;
+      padding:0 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:10px;
+      font-weight:700;
+    }
+    .skill-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .skill-actions button{
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--text);
+      font-size:11px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .skill-actions button.is-primary{
+      border-color:#c1cfe7;
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+    .empty-state{
+      display:none;
+      border:1px dashed var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+      padding:20px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+    .empty-state strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:15px;
+      color:var(--text);
+    }
+    .workspace.is-schema-hidden .schema-window{
+      display:none;
+    }
+    .workspace.is-schema-hidden{
+      grid-template-columns:1fr 340px;
+    }
+    .workspace.is-schema-hidden .empty-state{
+      display:block;
+      grid-column:1 / 2;
+      align-self:start;
+    }
+
+    @media (max-width:1320px){
+      .workspace{
+        grid-template-columns:1fr;
+      }
+      .workspace.is-schema-hidden{
+        grid-template-columns:1fr;
+      }
+      .meta{
+        grid-template-columns:1fr;
+      }
+      .graph-columns{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">多窗口设计工作台</span>
+      <h1>设计工具不再塞成一个大窗，而是按设计师工作流拆成 4 个协作窗口</h1>
+      <p>
+        这版预览专门验证两件事：第一，结构树、结构关系图、参数检查器和
+        <strong>Vibe Skills</strong> 是否应该分开；第二，是否能根据不同游戏自动换成对应 schema。
+        你可以直接切换 <strong>贪吃蛇</strong>、<strong>植物防守</strong>、<strong>平台跳跃</strong>，
+        也可以点 <strong>无 schema</strong> 看看系统是不是会真的把游戏专属窗口隐藏掉。
+      </p>
+      <div class="switcher" id="game-switcher"></div>
+      <div class="meta">
+        <div class="meta-card">
+          <strong>为什么拆窗</strong>
+          <span>设计师先看结构，再选对象，最后精修参数。Vibe 不是普通参数，所以它应该独立成一个像 skills 一样的能力窗。</span>
+        </div>
+        <div class="meta-card">
+          <strong>删掉假能力</strong>
+          <span>没有 schema 就隐藏游戏专属窗口，不做假树、假参数。这样不会把系统做成“看起来很强，实际全是硬编码”。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="schema-note">
+      <div>
+        <strong id="schema-title">当前 schema</strong>
+        <span id="schema-desc">点击上面的游戏切换，观察窗口内容如何变化。</span>
+      </div>
+      <span class="schema-note__badge" id="schema-badge">Schema Ready</span>
+    </section>
+
+    <section class="workspace" id="workspace">
+      <div class="stack schema-window">
+        <article class="window">
+          <div class="window-bar">
+            <div class="window-title"><span class="dot green"></span>游戏结构树</div>
+            <span class="window-badge" id="tree-badge">当前游戏</span>
+          </div>
+          <div class="window-body">
+            <div class="tree-list" id="tree-list"></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack schema-window">
+        <article class="window">
+          <div class="window-bar">
+            <div class="window-title"><span class="dot blue"></span>结构关系图</div>
+            <span class="window-badge">点节点切检查器</span>
+          </div>
+          <div class="window-body">
+            <div class="graph-meta">
+              <div>
+                <strong id="graph-title">关系图</strong>
+                <span id="graph-copy">这里不是舞台预览，而是游戏对象关系图。</span>
+              </div>
+              <span class="window-badge" id="graph-mode">Schema View</span>
+            </div>
+            <div class="graph-board">
+              <div class="graph-root" id="graph-root">Game Schema</div>
+              <div class="graph-columns" id="graph-columns"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="window">
+          <div class="window-bar">
+            <div class="window-title"><span class="dot gold"></span>参数检查器</div>
+            <span class="window-badge" id="inspector-badge">对象级参数</span>
+          </div>
+          <div class="window-body">
+            <div class="inspector-head">
+              <div>
+                <strong id="inspector-title">选中对象</strong>
+                <span id="inspector-copy">对象参数会根据游戏 schema 自动切换。</span>
+              </div>
+              <span class="inspector-badge" id="inspector-state">可写回代码</span>
+            </div>
+            <div class="field-list" id="field-list"></div>
+            <div class="schema-pills" id="schema-pills"></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty-state" id="empty-state">
+        <strong>没有 schema 就隐藏游戏专属窗口</strong>
+        当前游戏只有通用 vibe 语义，没有对象树和参数目录。这个状态下不再硬造“背景 > 蛇身 > 樱桃炸弹”这种假结构，只保留右边的
+        <strong>Vibe Skills</strong> 作为 AI 风格能力入口。
+      </div>
+
+      <div class="stack">
+        <article class="window">
+          <div class="window-bar">
+            <div class="window-title"><span class="dot pink"></span>Vibe Skills</div>
+            <span class="window-badge">独立能力层</span>
+          </div>
+          <div class="window-body">
+            <div class="skills-head">
+              <strong>把 vibe design 做成 skills，而不是做成普通参数</strong>
+              <span>每张卡都像一个可复用的设计超能力：说明影响范围、影响对象、可以作用到当前节点、子树或全局，也可以直接生成一条交给 AI 的 vibe 指令。</span>
+            </div>
+            <div class="skill-list" id="skill-list"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const SCHEMAS = {
+      snake: {
+        id: 'snake',
+        label: '贪吃蛇',
+        desc: '扁平节奏型小游戏，结构简单但节奏参数敏感。',
+        badge: 'Schema Ready',
+        tree: [
+          {
+            id: 'scene',
+            label: '背景 > 画布',
+            note: '尺寸、底色、网格',
+            children: [
+              { id: 'scene.canvas', label: '背景 > 画布大小', note: '宽度 / 高度 / 画布比例' },
+              { id: 'scene.grid', label: '背景 > 网格', note: '格线颜色 / 密度' },
+            ],
+          },
+          {
+            id: 'player',
+            label: '自己 > 蛇身',
+            note: '大小、长度、头身区分',
+            children: [
+              { id: 'player.body', label: '自己 > 蛇身', note: '大小 / 宽度 / 长度' },
+              { id: 'food', label: '食物 > 果实', note: '颜色 / 辉光 / 存在感' },
+            ],
+          },
+          {
+            id: 'rules',
+            label: '规则 > 节奏',
+            note: '基础速度、提速、升级阈值',
+            children: [
+              { id: 'rules.speed', label: '规则 > 速度', note: '基础速度 / 最快节奏 / 升级阈值' },
+            ],
+          },
+        ],
+        graphRoot: 'Snake Schema',
+        graphColumns: [
+          [
+            { id: 'scene.canvas', label: '背景 > 画布', note: '尺寸与底色' },
+            { id: 'scene.grid', label: '背景 > 网格', note: '格线与密度' },
+          ],
+          [
+            { id: 'player.body', label: '自己 > 蛇身', note: '宽度、长度、颜色' },
+          ],
+          [
+            { id: 'food', label: '食物 > 果实', note: '辉光、颜色、体积' },
+            { id: 'rules.speed', label: '规则 > 速度', note: '初速度与升级' },
+          ],
+        ],
+        inspector: {
+          'scene.canvas': {
+            title: '背景 > 画布大小',
+            copy: '这是蛇类小游戏最先影响“手感”的节点，尺寸和格密度会直接改变速度感。',
+            fields: [
+              { label: '画布宽度', fill: '62%', value: '520 px' },
+              { label: '画布高度', fill: '56%', value: '480 px' },
+              { label: '背景底色', fill: '34%', value: '#050912' },
+            ],
+            schema: ['scene.canvas.width', 'scene.canvas.height', 'scene.canvas.background'],
+          },
+          'scene.grid': {
+            title: '背景 > 网格',
+            copy: '网格不是装饰，它决定玩家对单位移动和转向的判断成本。',
+            fields: [
+              { label: '网格颜色', fill: '46%', value: 'rgba(...)' },
+              { label: '格线密度', fill: '58%', value: '20 px' },
+              { label: '边框辉光', fill: '28%', value: '14 %' },
+            ],
+            schema: ['scene.grid.color', 'scene.grid.size', 'scene.grid.glow'],
+          },
+          'player.body': {
+            title: '自己 > 蛇身',
+            copy: '身体大小和长度决定“压迫感”和容错区间，是贪吃蛇里最常调的对象。',
+            fields: [
+              { label: '蛇身大小', fill: '60%', value: '20 px' },
+              { label: '开局长度', fill: '32%', value: '3 节' },
+              { label: '头身区分', fill: '48%', value: '清晰' },
+            ],
+            schema: ['actor.snake.cellSize', 'actor.snake.length', 'actor.snake.headStyle'],
+          },
+          'food': {
+            title: '食物 > 果实',
+            copy: '果实负责“目标感”，颜色和辉光的识别必须比背景和蛇身更强。',
+            fields: [
+              { label: '食物颜色', fill: '74%', value: '#ff2c6d' },
+              { label: '辉光强度', fill: '52%', value: '18 px' },
+              { label: '目标体积', fill: '36%', value: '中' },
+            ],
+            schema: ['item.food.color', 'item.food.glow', 'item.food.size'],
+          },
+          'rules.speed': {
+            title: '规则 > 速度',
+            copy: '节奏参数是这类游戏最容易做坏的部分，所以它应该独立成一个规则节点。',
+            fields: [
+              { label: '基础速度', fill: '54%', value: '145 ms' },
+              { label: '最快节奏', fill: '22%', value: '55 ms' },
+              { label: '升级阈值', fill: '44%', value: '5 分' },
+            ],
+            schema: ['rules.pacing.baseSpeed', 'rules.pacing.speedFloor', 'rules.pacing.levelStep'],
+          },
+        },
+        skills: [
+          {
+            code: '$vibe/spring-play',
+            name: '春日软萌',
+            copy: '把黑场、霓虹、尖锐反馈收住，换成更明亮、更低压、更可爱的一套读感。',
+            tags: ['作用对象: 背景 / 蛇身', '影响: 底色 / 圆角 / 提示', '默认范围: 子树'],
+          },
+          {
+            code: '$vibe/night-arcade',
+            name: '夜光街机',
+            copy: '保留黑底和高对比，把头部高亮、边框辉光和果实目标感整体推高。',
+            tags: ['作用对象: 全局', '影响: 背景 / 辉光 / HUD', '默认范围: 全局'],
+          },
+          {
+            code: '$vibe/focus-danger',
+            name: '危险警报',
+            copy: '把目标做得更刺眼，速度压力更强，适合高强度挑战模式。',
+            tags: ['作用对象: 果实 / 规则', '影响: 辉光 / 速度 / 提示', '默认范围: 当前节点'],
+          },
+        ],
+      },
+      plants: {
+        id: 'plants',
+        label: '植物防守',
+        desc: '单位和技能比场景更重要，schema 要更深，植物对象的能力参数是主入口。',
+        badge: 'Deep Schema',
+        tree: [
+          {
+            id: 'scene',
+            label: '场景 > 草坪',
+            note: '地块、行列、天气',
+            children: [
+              { id: 'scene.lawn', label: '场景 > 草坪', note: '地块配色 / 行列 / 日夜' },
+            ],
+          },
+          {
+            id: 'plant',
+            label: '植物 > 樱桃炸弹',
+            note: '技能、伤害、预警',
+            children: [
+              { id: 'plant.cherry', label: '植物 > 樱桃炸弹', note: '攻击范围 / 所需能量 / 杀伤力' },
+              { id: 'plant.fx', label: '植物 > 爆炸表现', note: '烟雾 / 色温 / 震动' },
+            ],
+          },
+          {
+            id: 'enemy',
+            label: '敌人 > 僵尸',
+            note: '血量、移速、压迫感',
+            children: [
+              { id: 'enemy.zombie', label: '敌人 > 僵尸', note: '血量 / 速度 / 硬直' },
+            ],
+          },
+        ],
+        graphRoot: 'Plants Defense Schema',
+        graphColumns: [
+          [
+            { id: 'scene.lawn', label: '场景 > 草坪', note: '行列与天气' },
+          ],
+          [
+            { id: 'plant.cherry', label: '植物 > 樱桃炸弹', note: '攻击范围 / 所需能量 / 杀伤力' },
+            { id: 'plant.fx', label: '植物 > 爆炸表现', note: '烟雾 / 色温 / 震动' },
+          ],
+          [
+            { id: 'enemy.zombie', label: '敌人 > 僵尸', note: '血量 / 移速 / 压迫' },
+          ],
+        ],
+        inspector: {
+          'scene.lawn': {
+            title: '场景 > 草坪',
+            copy: '地块规则直接决定节奏读取方式，所以它应该跟植物能力并列存在。',
+            fields: [
+              { label: '地图列数', fill: '64%', value: '9 列' },
+              { label: '白天亮度', fill: '58%', value: '偏亮' },
+              { label: '地块对比', fill: '38%', value: '中' },
+            ],
+            schema: ['scene.lawn.columns', 'scene.lawn.lightness', 'scene.lawn.contrast'],
+          },
+          'plant.cherry': {
+            title: '植物 > 樱桃炸弹',
+            copy: '这是典型的能力对象，检查器应该围绕攻击范围、所需能量和杀伤力展开。',
+            fields: [
+              { label: '攻击范围', fill: '58%', value: '3 格' },
+              { label: '所需能量', fill: '34%', value: '25' },
+              { label: '杀伤力', fill: '84%', value: '120' },
+            ],
+            schema: ['ability.cherryBomb.range', 'ability.cherryBomb.cost', 'ability.cherryBomb.damage'],
+          },
+          'plant.fx': {
+            title: '植物 > 爆炸表现',
+            copy: '战斗表现最好单独拆节点，不要混在技能伤害里一起调。',
+            fields: [
+              { label: '爆炸色温', fill: '72%', value: '暖' },
+              { label: '烟雾厚度', fill: '46%', value: '中' },
+              { label: '屏幕震动', fill: '40%', value: '弱中' },
+            ],
+            schema: ['feedback.cherryBomb.temperature', 'feedback.cherryBomb.smoke', 'feedback.cherryBomb.shake'],
+          },
+          'enemy.zombie': {
+            title: '敌人 > 僵尸',
+            copy: '敌人节点决定这类游戏的压迫感，所以它应该和植物能力对照看。',
+            fields: [
+              { label: '血量', fill: '50%', value: '中' },
+              { label: '移速', fill: '36%', value: '慢' },
+              { label: '被击硬直', fill: '24%', value: '短' },
+            ],
+            schema: ['actor.zombie.health', 'actor.zombie.speed', 'actor.zombie.hitstun'],
+          },
+        },
+        skills: [
+          {
+            code: '$vibe/bloom-warning',
+            name: '爆炸预警',
+            copy: '把樱桃炸弹的预警、色温和爆炸提示整体做得更强，适合高风险节奏。',
+            tags: ['作用对象: 樱桃炸弹', '影响: 预警 / 色温 / 伤害', '默认范围: 当前节点'],
+          },
+          {
+            code: '$vibe/garden-morning',
+            name: '花园清晨',
+            copy: '把草坪和植物整体调成更柔和的晨光氛围，同时保留植物识别度。',
+            tags: ['作用对象: 草坪 / 植物', '影响: 亮度 / 阴影 / UI', '默认范围: 子树'],
+          },
+          {
+            code: '$vibe/metal-defense',
+            name: '机械防守',
+            copy: '把线条做硬、冷色做强，敌人和技能反馈更规则，更像工厂塔防。',
+            tags: ['作用对象: 全局', '影响: 冷色 / 硬边 / 反馈', '默认范围: 全局'],
+          },
+        ],
+      },
+      platformer: {
+        id: 'platformer',
+        label: '平台跳跃',
+        desc: '角色动作和镜头反馈会变成主节点，树和检查器会长得完全不一样。',
+        badge: 'Motion Schema',
+        tree: [
+          {
+            id: 'player',
+            label: '角色 > 主角',
+            note: '跑动、跳跃、空中控制',
+            children: [
+              { id: 'player.move', label: '角色 > 跑动', note: '速度 / 惯性 / 停止手感' },
+              { id: 'player.jump', label: '角色 > 跳跃', note: '高度 / 二段跳 / 空中控制' },
+            ],
+          },
+          {
+            id: 'scene',
+            label: '场景 > 关卡',
+            note: '平台密度、危险区域、镜头',
+            children: [
+              { id: 'scene.level', label: '场景 > 地块', note: '平台间距 / 危险区 / 节奏' },
+              { id: 'scene.camera', label: '场景 > 镜头', note: '跟随 / 缓动 / 抖动' },
+            ],
+          },
+          {
+            id: 'feedback',
+            label: '表现 > 动效',
+            note: '落地、尾迹、命中反馈',
+            children: [
+              { id: 'feedback.motion', label: '表现 > 动效', note: '拖尾 / 落地 / 屏幕反馈' },
+            ],
+          },
+        ],
+        graphRoot: 'Platformer Schema',
+        graphColumns: [
+          [
+            { id: 'player.move', label: '角色 > 跑动', note: '速度 / 惯性' },
+            { id: 'player.jump', label: '角色 > 跳跃', note: '高度 / 空中控制' },
+          ],
+          [
+            { id: 'scene.level', label: '场景 > 地块', note: '间距 / 危险区' },
+            { id: 'scene.camera', label: '场景 > 镜头', note: '跟随 / 缓动 / 抖动' },
+          ],
+          [
+            { id: 'feedback.motion', label: '表现 > 动效', note: '拖尾 / 命中 / 落地' },
+          ],
+        ],
+        inspector: {
+          'player.move': {
+            title: '角色 > 跑动',
+            copy: '平台跳跃的“好不好玩”，很大程度先由跑动和减速手感决定。',
+            fields: [
+              { label: '跑动速度', fill: '62%', value: '7.2' },
+              { label: '启动惯性', fill: '40%', value: '中' },
+              { label: '刹车力度', fill: '36%', value: '偏软' },
+            ],
+            schema: ['actor.player.runSpeed', 'actor.player.accel', 'actor.player.brake'],
+          },
+          'player.jump': {
+            title: '角色 > 跳跃',
+            copy: '跳跃是平台游戏的灵魂，所以它应该占据一个完整节点，而不是塞在角色总表里。',
+            fields: [
+              { label: '跳跃高度', fill: '54%', value: '标准' },
+              { label: '二段跳', fill: '68%', value: '开启' },
+              { label: '空中控制', fill: '48%', value: '中' },
+            ],
+            schema: ['actor.player.jumpHeight', 'actor.player.doubleJump', 'actor.player.airControl'],
+          },
+          'scene.level': {
+            title: '场景 > 地块',
+            copy: '平台间距和危险区密度会决定玩家理解节奏的速度。',
+            fields: [
+              { label: '平台间距', fill: '58%', value: '中偏宽' },
+              { label: '危险区密度', fill: '26%', value: '低' },
+              { label: '检查点频率', fill: '44%', value: '常规' },
+            ],
+            schema: ['scene.level.gap', 'scene.level.hazardDensity', 'scene.level.checkpointRate'],
+          },
+          'scene.camera': {
+            title: '场景 > 镜头',
+            copy: '镜头是平台跳跃里常被忽略但最影响舒适度的系统节点。',
+            fields: [
+              { label: '跟随延迟', fill: '30%', value: '轻' },
+              { label: '镜头缓动', fill: '44%', value: '中' },
+              { label: '冲刺抖动', fill: '20%', value: '弱' },
+            ],
+            schema: ['scene.camera.followLag', 'scene.camera.ease', 'scene.camera.shake'],
+          },
+          'feedback.motion': {
+            title: '表现 > 动效',
+            copy: '动作反馈最好单独成窗，不要和物理参数混在一起调。',
+            fields: [
+              { label: '拖尾长度', fill: '38%', value: '短' },
+              { label: '落地尘土', fill: '34%', value: '轻' },
+              { label: '命中停顿', fill: '24%', value: '轻' },
+            ],
+            schema: ['feedback.motion.trail', 'feedback.motion.landDust', 'feedback.motion.hitPause'],
+          },
+        },
+        skills: [
+          {
+            code: '$vibe/airy-bounce',
+            name: '轻盈弹跳',
+            copy: '把跳跃、镜头和动效一起推向更轻更弹的方向，适合快乐平台跳跃。',
+            tags: ['作用对象: 跳跃 / 镜头', '影响: 高度 / 缓动 / 拖尾', '默认范围: 子树'],
+          },
+          {
+            code: '$vibe/heavy-ruins',
+            name: '沉重遗迹',
+            copy: '让跑动、刹车和镜头更沉，适合偏探索和压抑氛围的关卡。',
+            tags: ['作用对象: 主角 / 镜头', '影响: 惯性 / 阴影 / 音效', '默认范围: 全局'],
+          },
+          {
+            code: '$vibe/speed-chase',
+            name: '极速追逐',
+            copy: '强化冲刺、镜头跟随和危险提示，适合逃生或竞速段落。',
+            tags: ['作用对象: 跑动 / 关卡', '影响: 速度 / 视野 / 警示', '默认范围: 当前节点'],
+          },
+        ],
+      },
+      none: {
+        id: 'none',
+        label: '无 schema',
+        desc: '当前游戏没有结构化 schema，所以不渲染对象树和参数窗。',
+        badge: 'Schema Missing',
+        tree: [],
+        graphRoot: '',
+        graphColumns: [],
+        inspector: {},
+        skills: [
+          {
+            code: '$vibe/free-brief',
+            name: '自由氛围描述',
+            copy: '没有 schema 时，Vibe Skills 退化成“写风格提示 + 发给 AI”，而不是假装能精确调节点。',
+            tags: ['作用对象: AI 提示', '影响: 文本方向 / 风格词', '默认范围: 全局'],
+          },
+          {
+            code: '$vibe/reference-board',
+            name: '参考图板',
+            copy: '把参考图、关键词、材质和镜头感组合成一条高质量 vibe brief，供 AI 或设计师继续处理。',
+            tags: ['作用对象: 参考板', '影响: 图片 / 关键词 / 文案', '默认范围: 全局'],
+          },
+        ],
+      },
+    }
+
+    let currentSchemaId = 'snake'
+    let selectedNodeId = 'player.body'
+
+    const switcher = document.getElementById('game-switcher')
+    const workspace = document.getElementById('workspace')
+    const treeList = document.getElementById('tree-list')
+    const graphColumns = document.getElementById('graph-columns')
+    const graphRoot = document.getElementById('graph-root')
+    const graphTitle = document.getElementById('graph-title')
+    const graphCopy = document.getElementById('graph-copy')
+    const graphMode = document.getElementById('graph-mode')
+    const fieldList = document.getElementById('field-list')
+    const schemaPills = document.getElementById('schema-pills')
+    const skillList = document.getElementById('skill-list')
+    const schemaTitle = document.getElementById('schema-title')
+    const schemaDesc = document.getElementById('schema-desc')
+    const schemaBadge = document.getElementById('schema-badge')
+    const treeBadge = document.getElementById('tree-badge')
+    const inspectorTitle = document.getElementById('inspector-title')
+    const inspectorCopy = document.getElementById('inspector-copy')
+    const inspectorBadge = document.getElementById('inspector-badge')
+    const inspectorState = document.getElementById('inspector-state')
+
+    function flattenLeaves(groups) {
+      return groups.flatMap((group) => group.children || [])
+    }
+
+    function ensureSelectedNode(schema) {
+      if (!schema.tree.length) {
+        selectedNodeId = ''
+        return
+      }
+      const leafIds = new Set(flattenLeaves(schema.tree).map((item) => item.id))
+      if (!leafIds.has(selectedNodeId)) {
+        selectedNodeId = flattenLeaves(schema.tree)[0]?.id || ''
+      }
+    }
+
+    function renderSwitcher() {
+      switcher.innerHTML = Object.values(SCHEMAS).map((schema) => `
+        <button class="switch${schema.id === currentSchemaId ? ' is-active' : ''}" data-schema-id="${schema.id}">
+          ${schema.label}
+          <small>${schema.badge}</small>
+        </button>
+      `).join('')
+    }
+
+    function renderTree(schema) {
+      treeList.innerHTML = schema.tree.map((group) => `
+        <div class="tree-group${group.children.some((item) => item.id === selectedNodeId) ? ' is-active' : ''}">
+          <strong>${group.label}</strong>
+          <span>${group.note}</span>
+          <div class="tree-children">
+            ${(group.children || []).map((leaf) => `
+              <button class="tree-leaf${leaf.id === selectedNodeId ? ' is-active' : ''}" data-node-id="${leaf.id}">
+                <strong>${leaf.label}</strong>
+                <span>${leaf.note}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')
+    }
+
+    function renderGraph(schema) {
+      graphRoot.textContent = schema.graphRoot || 'Schema Hidden'
+      graphTitle.textContent = schema.label + ' · 结构关系图'
+      graphCopy.textContent = schema.id === 'none'
+        ? '没有 schema 时，这个窗口会被隐藏，不再强行渲染假节点。'
+        : '这里是当前游戏的对象关系图，不是舞台预览。'
+      graphMode.textContent = schema.badge
+      graphColumns.innerHTML = schema.graphColumns.map((column, index) => `
+        <div class="graph-col">
+          ${index ? '<div class="graph-link">⇣</div>' : ''}
+          ${column.map((node) => `
+            <button class="graph-node${node.id === selectedNodeId ? ' is-active' : ''}" data-node-id="${node.id}">
+              <strong>${node.label}</strong>
+              <span>${node.note}</span>
+            </button>
+          `).join('')}
+        </div>
+      `).join('')
+    }
+
+    function renderInspector(schema) {
+      const inspector = schema.inspector[selectedNodeId]
+      if (!inspector) {
+        inspectorTitle.textContent = '当前没有对象参数'
+        inspectorCopy.textContent = '这个状态下不显示伪参数。'
+        fieldList.innerHTML = ''
+        schemaPills.innerHTML = ''
+        inspectorBadge.textContent = '对象级参数'
+        inspectorState.textContent = '等待 schema'
+        return
+      }
+
+      inspectorTitle.textContent = inspector.title
+      inspectorCopy.textContent = inspector.copy
+      inspectorBadge.textContent = '对象级参数'
+      inspectorState.textContent = '可写回代码'
+      fieldList.innerHTML = inspector.fields.map((field) => `
+        <div class="field">
+          <label>${field.label}</label>
+          <div class="rail" style="--fill:${field.fill}"></div>
+          <b>${field.value}</b>
+        </div>
+      `).join('')
+      schemaPills.innerHTML = inspector.schema.map((item) => `<span>${item}</span>`).join('')
+    }
+
+    function renderSkills(schema) {
+      skillList.innerHTML = schema.skills.map((skill, index) => `
+        <article class="skill-card">
+          <div class="skill-meta">
+            <div>
+              <span class="skill-code">${skill.code}</span>
+              <strong>${skill.name}</strong>
+              <p>${skill.copy}</p>
+            </div>
+            <span class="window-badge">${index === 0 ? '推荐' : '可选'}</span>
+          </div>
+          <div class="skill-tags">
+            ${skill.tags.map((tag) => `<span>${tag}</span>`).join('')}
+          </div>
+          <div class="skill-actions">
+            <button class="is-primary">作用到当前节点</button>
+            <button>作用到子树</button>
+            <button>发给 AI</button>
+          </div>
+        </article>
+      `).join('')
+    }
+
+    function renderWorkspace() {
+      const schema = SCHEMAS[currentSchemaId]
+      ensureSelectedNode(schema)
+      renderSwitcher()
+      schemaTitle.textContent = '当前 schema：' + schema.label
+      schemaDesc.textContent = schema.desc
+      schemaBadge.textContent = schema.badge
+      treeBadge.textContent = schema.label
+      workspace.classList.toggle('is-schema-hidden', schema.id === 'none')
+
+      if (schema.id !== 'none') {
+        renderTree(schema)
+        renderGraph(schema)
+        renderInspector(schema)
+      }
+
+      renderSkills(schema)
+    }
+
+    switcher.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-schema-id]')
+      if (!button) return
+      currentSchemaId = button.dataset.schemaId
+      renderWorkspace()
+    })
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-node-id]')
+      if (!button) return
+      selectedNodeId = button.dataset.nodeId
+      renderWorkspace()
+    })
+
+    renderWorkspace()
+  </script>
+</body>
+</html>

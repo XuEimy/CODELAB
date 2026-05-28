@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设计树工作台预览</title>
+  <style>
+    :root{
+      --bg:#f2eee7;
+      --panel:#fffdf8;
+      --panel-soft:#f7f3eb;
+      --line:#d7cec1;
+      --text:#16202a;
+      --muted:#67707c;
+      --green:#1d8a70;
+      --green-soft:#e6f3ee;
+      --blue:#4a73bc;
+      --blue-soft:#edf3fc;
+      --pink:#c75e7b;
+      --pink-soft:#faedf2;
+      --gold:#af8842;
+      --gold-soft:#f5eddc;
+      --shadow:0 14px 32px rgba(22,32,42,.08);
+      --font:"IBM Plex Sans","PingFang SC","Microsoft YaHei",sans-serif;
+      --display:"Manrope","IBM Plex Sans","PingFang SC",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+    }
+    button,input{font:inherit}
+    .wrap{
+      max-width:1520px;
+      margin:0 auto;
+      padding:24px;
+      display:grid;
+      gap:18px;
+    }
+    .hero{
+      display:grid;
+      gap:16px;
+      padding:24px 28px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:var(--panel);
+      box-shadow:var(--shadow);
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      min-height:32px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #cadecf;
+      background:var(--green-soft);
+      color:var(--green);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      justify-self:start;
+    }
+    h1{
+      margin:0;
+      font:800 38px/1.08 var(--display);
+      letter-spacing:-.04em;
+    }
+    .hero p{
+      margin:0;
+      max-width:1050px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.85;
+    }
+    .hero-notes{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .hero-note{
+      display:grid;
+      gap:6px;
+      padding:14px 16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel-soft);
+    }
+    .hero-note strong{
+      font-size:14px;
+    }
+    .hero-note span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .main-grid{
+      display:grid;
+      grid-template-columns:1fr 1.45fr .95fr;
+      gap:18px;
+      align-items:start;
+    }
+    .window{
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      min-height:260px;
+    }
+    .bar{
+      height:48px;
+      padding:0 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--line);
+      background:#fbf8f2;
+    }
+    .title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font:800 15px/1 var(--display);
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+    .dot.green{background:var(--green)}
+    .dot.blue{background:var(--blue)}
+    .dot.pink{background:var(--pink)}
+    .dot.gold{background:var(--gold)}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+    .body{
+      padding:16px;
+      display:grid;
+      gap:14px;
+    }
+    .section-head strong{
+      display:block;
+      font-size:22px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+    }
+    .section-head span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.75;
+    }
+
+    .board-list{
+      display:grid;
+      gap:12px;
+    }
+    .board-card{
+      display:grid;
+      gap:10px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+    }
+    .board-card__head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .board-card__head strong{
+      font-size:16px;
+    }
+    .board-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.75;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chips span{
+      display:inline-flex;
+      align-items:center;
+      min-height:26px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .graph-meta{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .graph-meta__focus{
+      display:grid;
+      gap:4px;
+      min-width:220px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel-soft);
+    }
+    .graph-meta__focus strong{
+      font-size:15px;
+    }
+    .graph-meta__focus span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+    .node-canvas{
+      position:relative;
+      min-height:760px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--panel-soft);
+      overflow:hidden;
+    }
+    .node-canvas::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        linear-gradient(to right, rgba(215,206,193,.38) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(215,206,193,.38) 1px, transparent 1px);
+      background-size:50px 50px;
+      pointer-events:none;
+    }
+    .node-root{
+      position:absolute;
+      left:50%;
+      top:46px;
+      transform:translateX(-50%);
+      min-width:180px;
+      min-height:44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 18px;
+      border-radius:999px;
+      border:1px solid #c6d5ef;
+      background:var(--blue-soft);
+      color:var(--blue);
+      font-size:14px;
+      font-weight:800;
+      z-index:2;
+    }
+    .node-btn{
+      position:absolute;
+      width:214px;
+      padding:14px 14px 12px;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:0 10px 24px rgba(22,32,42,.05);
+      text-align:left;
+      cursor:pointer;
+      z-index:2;
+      transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+    .node-btn:hover{
+      transform:translateY(-1px);
+    }
+    .node-btn.is-active{
+      border-color:#bfd0eb;
+      box-shadow:0 0 0 3px rgba(74,115,188,.08),0 10px 24px rgba(22,32,42,.06);
+    }
+    .node-btn small{
+      display:block;
+      margin-bottom:6px;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .node-btn strong{
+      display:block;
+      margin-bottom:5px;
+      font-size:17px;
+    }
+    .node-btn span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.65;
+    }
+    .node-hero{left:86px;top:176px}
+    .node-loop{left:50%;top:176px;transform:translateX(-50%)}
+    .node-world{right:86px;top:176px}
+    .node-button{left:62px;top:390px}
+    .node-nav{left:250px;top:502px}
+    .node-boss{left:50%;top:390px;transform:translateX(-50%)}
+    .node-reward{left:50%;top:590px;transform:translateX(-50%)}
+    .node-shop{right:250px;top:502px}
+    .node-sound{right:62px;top:390px}
+    svg.links{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:1;
+    }
+    .links path{
+      fill:none;
+      stroke:#cfd5de;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .legend{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      width:260px;
+      padding:14px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:0 10px 20px rgba(22,32,42,.05);
+      display:grid;
+      gap:8px;
+      z-index:2;
+    }
+    .legend strong{
+      font-size:14px;
+    }
+    .legend span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    .prompt-stack,
+    .suggestions{
+      display:grid;
+      gap:12px;
+    }
+    .bubble{
+      display:grid;
+      gap:8px;
+      padding:14px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+    }
+    .bubble.user{
+      background:#fff5f7;
+      border-color:#ecd3dc;
+    }
+    .bubble.ai{
+      background:#f3f7ff;
+      border-color:#cfdbf4;
+    }
+    .bubble strong{
+      font-size:13px;
+    }
+    .bubble p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.75;
+    }
+    .suggestion{
+      display:grid;
+      gap:6px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+    }
+    .suggestion strong{
+      font-size:13px;
+    }
+    .suggestion span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+    .composer{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+    }
+    .composer-tools{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .composer-tools span{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+    .composer-box{
+      min-height:108px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--panel);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+
+    .tuning-shell{
+      display:grid;
+      gap:14px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:var(--panel);
+      box-shadow:var(--shadow);
+    }
+    .tuning-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .tuning-head strong{
+      display:block;
+      font-size:22px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+    }
+    .tuning-head span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.75;
+      max-width:860px;
+    }
+    .tuning-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+    }
+    .tune-window{
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--panel-soft);
+      overflow:hidden;
+      min-height:320px;
+    }
+    .tune-bar{
+      height:46px;
+      padding:0 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--line);
+      background:var(--panel);
+    }
+    .tune-bar__title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font:800 14px/1 var(--display);
+    }
+    .tune-body{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .tune-copy{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+    .control-list{
+      display:grid;
+      gap:12px;
+    }
+    .control-row{
+      display:grid;
+      gap:8px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+    }
+    .control-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .control-top strong{
+      font-size:13px;
+    }
+    .control-top span{
+      color:var(--text);
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .control-row small{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+    .control-row input[type="range"]{
+      width:100%;
+      accent-color:var(--green);
+      margin:0;
+    }
+
+    @media (max-width:1450px){
+      .main-grid{
+        grid-template-columns:1fr;
+      }
+      .tuning-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+      .node-canvas{
+        min-height:900px;
+      }
+      .node-hero{left:40px}
+      .node-world{right:40px}
+      .node-button{left:40px}
+      .node-sound{right:40px}
+      .node-nav{left:210px}
+      .node-shop{right:210px}
+    }
+    @media (max-width:980px){
+      .hero-notes,
+      .tuning-grid{
+        grid-template-columns:1fr;
+      }
+      h1{
+        font-size:30px;
+      }
+      .node-canvas{
+        min-height:1120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">Design Workspace v2</span>
+      <h1>让设计从智慧树和游戏概览开始，设计 Agent 与验证窗口只围绕当前节点展开</h1>
+      <p>
+        这张新网页按照 PRD v2 收口成 4 个核心角色：左边是 <strong>游戏概览</strong>，中间是
+        <strong>智慧树</strong>，右边是 <strong>设计 Agent</strong>。下面的验证区收成
+        <strong>设计预览 / 游戏预览</strong> 两个窗口，只围绕当前节点出现。
+      </p>
+      <div class="hero-notes">
+        <div class="hero-note">
+          <strong>主入口不是参数表</strong>
+          <span>先点树里的节点，再围绕节点共创、聊天、精修。</span>
+        </div>
+        <div class="hero-note">
+          <strong>不相关就不展示</strong>
+          <span>当前节点没有对应的精修项，就不强行塞一个假窗口。</span>
+        </div>
+        <div class="hero-note">
+          <strong>验证区独立出来</strong>
+          <span>设计预览和游戏预览不再混进任务拆解里，而是作为单独验证窗口承接结果。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot green"></span>游戏概览</div>
+          <span class="badge">Overview</span>
+        </div>
+        <div class="body">
+          <div class="section-head">
+            <strong>把想法挂到节点上，再回树里看结构</strong>
+            <span>这里不是参数集市，而是截图、vibe 卡、玩法卡和 UI 方向卡的共创板。</span>
+          </div>
+          <div class="board-list" id="board-list"></div>
+        </div>
+      </article>
+
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot blue"></span>智慧树</div>
+          <span class="badge">Task Graph</span>
+        </div>
+        <div class="body">
+          <div class="graph-meta">
+            <div class="section-head">
+              <strong>从结构里找改动目标，而不是从一长串目录里猜</strong>
+              <span>点中间的节点，左边画布、右边设计聊天，以及下面的精修窗都会围绕这个节点切上下文。</span>
+            </div>
+            <div class="graph-meta__focus">
+              <strong id="focus-name">Hero 区</strong>
+              <span id="focus-summary">当前焦点：首屏邀请感、标题情绪和 CTA 的进入体验。</span>
+            </div>
+          </div>
+          <div class="node-canvas node-canvas--visual">
+            <div class="node-root">游戏体验</div>
+            <svg class="links" viewBox="0 0 860 760" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M430 88 C430 118 160 136 160 176"></path>
+              <path d="M430 88 C430 118 430 136 430 176"></path>
+              <path d="M430 88 C430 118 700 136 700 176"></path>
+              <path d="M160 230 C160 280 115 318 115 390"></path>
+              <path d="M160 230 C160 300 255 340 255 502"></path>
+              <path d="M430 230 C430 295 430 330 430 390"></path>
+              <path d="M430 444 C430 500 430 534 430 590"></path>
+              <path d="M700 230 C700 280 745 318 745 390"></path>
+              <path d="M700 230 C700 300 605 340 605 502"></path>
+            </svg>
+            <button class="node-btn node-hero is-active" type="button" data-node-id="hero">
+              <small>Web Layer</small>
+              <strong>Hero 区</strong>
+              <span>首屏视觉、标题情绪、CTA 节奏</span>
+            </button>
+            <button class="node-btn node-loop" type="button" data-node-id="loop">
+              <small>Core Loop</small>
+              <strong>主玩法节奏</strong>
+              <span>成长、挑战、奖励循环</span>
+            </button>
+            <button class="node-btn node-world" type="button" data-node-id="world">
+              <small>World Tone</small>
+              <strong>世界氛围</strong>
+              <span>色调、场景、音色、危险底色</span>
+            </button>
+            <button class="node-btn node-button" type="button" data-node-id="button">
+              <small>Entry</small>
+              <strong>开始按钮</strong>
+              <span>点击反馈、发光重量、启动感</span>
+            </button>
+            <button class="node-btn node-nav" type="button" data-node-id="nav">
+              <small>Flow</small>
+              <strong>导航动线</strong>
+              <span>页面切换、停留点、理解路径</span>
+            </button>
+            <button class="node-btn node-boss" type="button" data-node-id="boss">
+              <small>Challenge</small>
+              <strong>Boss 战节奏</strong>
+              <span>预警、强化、转阶段、高潮</span>
+            </button>
+            <button class="node-btn node-reward" type="button" data-node-id="reward">
+              <small>Reward</small>
+              <strong>奖励结算页</strong>
+              <span>战利品展开、升级反馈、情绪释放</span>
+            </button>
+            <button class="node-btn node-shop" type="button" data-node-id="shop">
+              <small>Economy</small>
+              <strong>商店循环</strong>
+              <span>购买反馈、稀有度、重抽节奏</span>
+            </button>
+            <button class="node-btn node-sound" type="button" data-node-id="sound">
+              <small>Feedback</small>
+              <strong>音效层</strong>
+              <span>命中、提示、危险、胜利音</span>
+            </button>
+            <div class="legend">
+              <strong>怎么读这张图</strong>
+              <span>蓝线是游戏体验的大结构，节点是你真正能改的部分。下面精修窗会根据当前节点只显示相关项，不再把所有控制混在一起。</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot pink"></span>设计 Agent</div>
+          <span class="badge">Design Copilot</span>
+        </div>
+        <div class="body">
+          <div class="section-head">
+            <strong>围绕当前节点给你设计建议，不是普通客服聊天</strong>
+            <span>这里负责提 vibe 方向、拆可改项、产出建议卡，并把推荐挂回画布或送进精修窗。</span>
+          </div>
+          <div class="prompt-stack" id="chat-stack"></div>
+          <div class="suggestions" id="suggestion-list"></div>
+          <div class="composer">
+            <div class="composer-tools">
+              <span>挂到节点</span>
+              <span>生成 3 个方向</span>
+              <span>转成画布卡片</span>
+              <span>送进精修窗</span>
+            </div>
+            <div class="composer-box" id="composer-box"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="tuning-shell">
+      <div class="tuning-head">
+        <div>
+          <strong>节点精修窗口</strong>
+          <span>验证仍然保留，但它们被收成两个互不重复的窗口。一个只管设计预览，一个只管游戏预览，不再把所有反馈揉成一大块。</span>
+        </div>
+        <span class="badge" id="tuning-count">4 个精修窗</span>
+      </div>
+      <div class="tuning-grid" id="tuning-grid"></div>
+    </section>
+  </div>
+
+  <script>
+    const SECTION_META = {
+      layout: {
+        title: '设计预览',
+        badge: 'Design Preview',
+        dotClass: 'green',
+        copy: '只管设计结果的视觉预览、样机 framing 和网页层呈现，不碰任务拆解本身。'
+      },
+      web: {
+        title: '游戏预览',
+        badge: 'Game Preview',
+        dotClass: 'gold',
+        copy: '只管运行后的效果验证、交互反馈和体验节奏，不混入设计参数讨论。'
+      }
+    }
+
+    const NODE_DATA = {
+      hero: {
+        name: 'Hero 区',
+        summary: '首屏邀请感、标题情绪和 CTA 的进入体验。',
+        board: [
+          {
+            title: '首屏像冒险邀请函',
+            note: '不要像工具后台。视觉中心应该是“点进去就要开始冒险”的感觉。',
+            tags: ['大标题', '邀请函', '轻工具感']
+          },
+          {
+            title: 'CTA 像启动旅程',
+            note: '按钮不是普通提交按钮，而是一个让人愿意点下去的启程动作。',
+            tags: ['启动感', '发光克制', '停留 1 秒']
+          },
+          {
+            title: '背景别太吵',
+            note: '保留层次和氛围，但不能抢走首屏文案和操作路径。',
+            tags: ['低噪背景', '层次清楚']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：Hero 区',
+          userText: '我希望首页更像一张冒险邀请函，不是个普通工具站。',
+          aiText: '先别急着调所有参数。建议先定三件事：标题像不像邀请、按钮像不像启程、背景会不会抢戏。我建议先把标题重量和 CTA 入场节奏拉出来看。',
+          suggestions: [
+            {title: '推荐 1：标题像海报', text: '标题再更大，副标题更短，首屏先把“加入感”打满。'},
+            {title: '推荐 2：CTA 先轻后猛', text: '默认状态克制，hover 才明显发亮，像“准备出发”的开关。'},
+            {title: '推荐 3：挂到画布', text: '把 Hero 方向拆成三张卡：标题、按钮、背景，各自去精修。'}
+          ],
+          composer: '输入示例：把 Hero 区做得更像“轻松但可信”的产品首页，并给我 3 个网页版式方向。'
+        },
+        sections: {
+          layout: [
+            {label: 'Hero 区块宽度', value: '920 px', percent: 78, hint: '控制首屏信息团的展开程度和留白。'},
+            {label: '标题块垂直位置', value: '顶部下 112 px', percent: 56, hint: '决定用户第一眼先看到标题还是卡片。'},
+            {label: 'CTA 与说明间距', value: '28 px', percent: 48, hint: '拉开后会更像海报，收紧后更像产品页。'}
+          ],
+          behavior: [
+            {label: '首屏卡片入场节奏', value: '240 ms 递进', percent: 44, hint: '控制进入时是一起出现，还是轻微错开。'},
+            {label: '首个 CTA 暴露时机', value: '0.6 s', percent: 36, hint: '过快会像广告，稍晚一点会更像邀请。'},
+            {label: '次级操作分流数', value: '2 条', percent: 28, hint: '避免首屏同时让用户做太多决定。'}
+          ],
+          feedback: [
+            {label: 'hover 发光强度', value: '中低', percent: 38, hint: '维持轻产品感，不让按钮像游戏商城入口。'},
+            {label: '入场动效时长', value: '420 ms', percent: 58, hint: '稍慢一点更像“邀请函展开”，过慢会拖沓。'},
+            {label: '背景浮层对比', value: '17%', percent: 24, hint: '压低噪声，让标题成为第一视觉重心。'}
+          ],
+          web: [
+            {label: '标题字重', value: '800', percent: 82, hint: '让视觉锚点更稳定。'},
+            {label: '按钮圆角', value: '18 px', percent: 46, hint: '既保留友好感，又不做成过度软萌。'},
+            {label: '卡片边框存在感', value: '1 px', percent: 26, hint: '边框轻一点，页面会更通透。'},
+            {label: '页面底色亮度', value: '暖白 94%', percent: 72, hint: '保持网页层干净，不靠渐变撑氛围。'}
+          ]
+        }
+      },
+      loop: {
+        name: '主玩法节奏',
+        summary: '成长、挑战、奖励循环的主骨架。',
+        board: [
+          {
+            title: '主循环先稳再变',
+            note: '前段让玩家建立规律，中段再引入更明显的压力和稀有奖励。',
+            tags: ['先稳后变', '成长循环']
+          },
+          {
+            title: '奖励节点别太远',
+            note: '如果连续反馈过长，热度会掉，尤其是轻玩法游戏。',
+            tags: ['奖励密度', '停留时长']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：主玩法节奏',
+          userText: '我想让主循环更上头，但又不要一上来就太压迫。',
+          aiText: '建议先看“压力爬升”和“奖励回收”两条线。你可以先把生成节奏和奖励间隔拆开调，而不是把所有数值一起推高。',
+          suggestions: [
+            {title: '推荐 1：前 30 秒更稳', text: '先给玩家可预测回报，再渐渐增加异动。'},
+            {title: '推荐 2：奖励更短回路', text: '不要让连续两次有效反馈隔太久。'},
+            {title: '推荐 3：节奏节点化', text: '把“平静 / 紧张 / 释放”变成三个独立阶段。'}
+          ],
+          composer: '输入示例：帮我把主玩法改成“前轻后紧再释放”的节奏，并告诉我优先调哪 3 个点。'
+        },
+        sections: {
+          layout: [
+            {label: '主区域密度', value: '中', percent: 52, hint: '影响玩家是否容易一眼理解主循环。'},
+            {label: '奖励弹出占比', value: '34%', percent: 34, hint: '奖励层过大会打断节奏，过小又不够爽。'}
+          ],
+          behavior: [
+            {label: '压力爬升曲线', value: '第 45 秒后上扬', percent: 62, hint: '控制什么时候开始让玩家真正紧张。'},
+            {label: '奖励回收间隔', value: '18 s', percent: 40, hint: '决定玩家多久会得到一次“值得继续”的正反馈。'},
+            {label: '异常事件触发率', value: '12%', percent: 22, hint: '太高会失去预期，太低又太平。'}
+          ],
+          feedback: [
+            {label: '节奏切换提示', value: '弱中', percent: 48, hint: '提醒玩家阶段变化，但不要像教程。'},
+            {label: '高潮段镜头抖动', value: '14%', percent: 18, hint: '只在真正高压段出现。'}
+          ]
+        }
+      },
+      world: {
+        name: '世界氛围',
+        summary: '色调、场景和音色层面的整体气质。',
+        board: [
+          {
+            title: '轻松里带一点未知危险',
+            note: '不是纯可爱，也不是直接阴暗，要让玩家觉得“安全但不完全安全”。',
+            tags: ['轻松外壳', '未知底色']
+          },
+          {
+            title: '危险不要靠大红色',
+            note: '更多用音色、留白和材质变化去铺危险。',
+            tags: ['低饱和危险', '材质切换']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：世界氛围',
+          userText: '我想要软一点的世界，但底下还得有点未知风险。',
+          aiText: '最有效的方式不是直接改成深色，而是先把“亮部材质”和“危险音色”拆开。这样世界表面还是友好的，但底色会更有悬念。',
+          suggestions: [
+            {title: '推荐 1：亮面材质', text: '视觉层保留轻和软，把风险藏在声音和留白里。'},
+            {title: '推荐 2：危险音色', text: '只在临界点加入偏冷的高频提示。'},
+            {title: '推荐 3：稀有节点更暗', text: '把未知感压在少量关键节点，不污染全局。'}
+          ],
+          composer: '输入示例：给我一组“可爱表层 + 隐约危险底色”的世界风格建议。'
+        },
+        sections: {
+          layout: [
+            {label: '环境层级数', value: '3 层', percent: 40, hint: '层级太多会噪，太少又显得薄。'}
+          ],
+          feedback: [
+            {label: '危险提示音存在感', value: '低', percent: 24, hint: '让风险感藏在边缘，而不是扑面而来。'},
+            {label: '环境雾气厚度', value: '中低', percent: 32, hint: '薄雾会带一点未知感。'},
+            {label: '高光暖度', value: '偏暖', percent: 72, hint: '维持整体友好气质。'}
+          ],
+          web: [
+            {label: '背景纹理密度', value: '稀', percent: 18, hint: '网页层只留气氛，不做过度装饰。'},
+            {label: '卡片底色暖度', value: '轻暖', percent: 66, hint: '让 UI 层跟世界气质连起来。'}
+          ]
+        }
+      },
+      button: {
+        name: '开始按钮',
+        summary: '点击反馈、发光重量和“我要开始了”的启动感。',
+        board: [
+          {
+            title: '按钮像个出发开关',
+            note: '不是普通提交按钮，要像启动旅程前按下去的那一下。',
+            tags: ['启动感', '轻重量']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：开始按钮',
+          userText: '我想让按钮很想点，但又不要像手游商城按钮。',
+          aiText: '可以先把体积、圆角和发光分开看。按钮最怕三者一起拉满，那会直接俗掉。',
+          suggestions: [
+            {title: '推荐 1：尺寸先稳', text: '先把按钮占比定稳，再决定要不要更亮。'},
+            {title: '推荐 2：按下去有重量', text: '按压反馈比常亮更重要。'},
+            {title: '推荐 3：留一点克制', text: '不要让 CTA 成为页面里唯一发光物。'}
+          ],
+          composer: '输入示例：帮我做一个“很想点，但不油腻”的开始按钮方向。'
+        },
+        sections: {
+          layout: [
+            {label: '按钮宽度', value: '232 px', percent: 54, hint: '宽度决定它更像大 CTA 还是一枚功能按钮。'},
+            {label: '图标与文字距离', value: '10 px', percent: 26, hint: '过远会松散，过近会挤。'}
+          ],
+          behavior: [
+            {label: '按压回弹速度', value: '140 ms', percent: 58, hint: '让点击像“启动”而不是单纯 hover。'},
+            {label: '首次强调时机', value: '首屏停留 1.2 s', percent: 46, hint: '太快像催促，太晚又错过意图。'}
+          ],
+          feedback: [
+            {label: '按下高光幅度', value: '中', percent: 42, hint: '只在按下或 hover 时显现。'},
+            {label: '边缘发光半径', value: '14 px', percent: 34, hint: '别做成长期霓虹。'},
+            {label: '点击音色亮度', value: '偏清脆', percent: 62, hint: '让动作像开始游戏，不像确认表单。'}
+          ],
+          web: [
+            {label: '按钮圆角', value: '20 px', percent: 52, hint: '更圆会更轻松，但也更容易偏幼。'},
+            {label: '边框对比', value: '低', percent: 20, hint: '边框太重会像后台系统控件。'}
+          ]
+        }
+      },
+      nav: {
+        name: '导航动线',
+        summary: '页面切换、停留点和理解路径的组织方式。',
+        board: [
+          {
+            title: '路径得像被引导',
+            note: '用户不该靠猜来理解下一步要去哪。',
+            tags: ['停留点', '引导顺序']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：导航动线',
+          userText: '我想让页面更好逛，但不想用太多箭头和教程。',
+          aiText: '先从停留点数量和切换顺序下手。很多时候不是缺提示，而是页面没有明显的节奏节点。',
+          suggestions: [
+            {title: '推荐 1：少一点停留点', text: '先缩短用户要理解的路径，再补提示。'},
+            {title: '推荐 2：转场像接力', text: '当前区域的退出和下一区域的进入要互相接上。'}
+          ],
+          composer: '输入示例：给我一套让导航更顺滑的页面切换建议。'
+        },
+        sections: {
+          layout: [
+            {label: '关键停留点数量', value: '4 个', percent: 38, hint: '停留点越少，结构越清楚。'},
+            {label: '导航区占比', value: '18%', percent: 24, hint: '避免导航压过主内容。'}
+          ],
+          behavior: [
+            {label: '页面切换间隔', value: '220 ms', percent: 42, hint: '过快会断，过慢会拖。'},
+            {label: '次要路径可见度', value: '中低', percent: 30, hint: '不把所有支线一上来都抛给用户。'}
+          ],
+          web: [
+            {label: '导航字体层级', value: '2 级', percent: 28, hint: '不要让全局层级失控。'},
+            {label: '当前态指示宽度', value: '48 px', percent: 36, hint: '让人一眼知道现在在哪。'}
+          ]
+        }
+      },
+      boss: {
+        name: 'Boss 战节奏',
+        summary: '预警、强化、转阶段和高潮落点。',
+        board: [
+          {
+            title: '先让人察觉，再让人害怕',
+            note: 'Boss 压力不该一上来就满格，预警比爆发更重要。',
+            tags: ['预警', '转阶段', '压迫感']
+          },
+          {
+            title: '危险要有层次',
+            note: '先是音色、再是视觉、最后才是伤害和空间压力。',
+            tags: ['层层加压', '分段强化']
+          },
+          {
+            title: '高潮后给释放',
+            note: 'Boss 段末端一定要有明显释放，否则只剩疲惫。',
+            tags: ['释放感', '收束']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：Boss 战节奏',
+          userText: '我想让 Boss 更压迫，但不能无脑堆数值。',
+          aiText: '建议先改“预警时长、第二阶段进入点、危险反馈密度”。只要这三条线成立，就算数值不暴力，玩家也会感到压迫。',
+          suggestions: [
+            {title: '推荐 1：先平静后压迫', text: '把第一个转阶段做成“平静被打断”的感觉。'},
+            {title: '推荐 2：危险来自反馈密度', text: '不一定靠大伤害，也可以靠更密的预警和音效。'},
+            {title: '推荐 3：高潮后快速收束', text: '让玩家在释放里感到自己真的赢了。'}
+          ],
+          composer: '输入示例：帮我把 Boss 战做成“先平静、后压迫、最后突然收束”的节奏。'
+        },
+        sections: {
+          layout: [
+            {label: '危险区占比', value: '38%', percent: 52, hint: '先扩大到能感知，但别让躲避空间直接消失。'},
+            {label: '预警标记数量', value: '4 个', percent: 34, hint: '信息太多会乱，太少又不足以构成紧张。'}
+          ],
+          behavior: [
+            {label: '预警时长', value: '1.2 s', percent: 46, hint: '玩家来得及察觉，但不会舒服到像教程。'},
+            {label: '第二阶段进入点', value: 'Boss 血量 62%', percent: 58, hint: '控制“真正开始危险”的时机。'},
+            {label: '强化间隔', value: '11 s', percent: 40, hint: '越短越压迫，但也越容易疲劳。'},
+            {label: '收束段长度', value: '3.8 s', percent: 26, hint: '给玩家一个清晰的情绪落点。'}
+          ],
+          feedback: [
+            {label: '警报闪动频率', value: '中高', percent: 64, hint: '别一上来就拉满，把高频留给第二阶段。'},
+            {label: '低频震动强度', value: '18%', percent: 18, hint: '让压迫先从身体感觉开始。'},
+            {label: '危险音色亮度', value: '偏冷', percent: 34, hint: '更像警戒而不是热血。'}
+          ]
+        }
+      },
+      reward: {
+        name: '奖励结算页',
+        summary: '战利品展开、升级反馈和情绪释放。',
+        board: [
+          {
+            title: '结算不该像普通弹窗',
+            note: '它应该是一次“战利品展开”，而不是一个机械确认框。',
+            tags: ['展开动画', '收获感']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：奖励结算页',
+          userText: '我想让结算更爽，不要像表单完成页。',
+          aiText: '先把战利品展开顺序和升级重音拆出来。结算页最怕信息平铺，应该有一层一层揭开的感觉。',
+          suggestions: [
+            {title: '推荐 1：先掉落后统计', text: '先让玩家看到收获，再给总结。'},
+            {title: '推荐 2：强化升级重音', text: '把真正重要的那一项变成最响的一下。'}
+          ],
+          composer: '输入示例：帮我做一个“打开战利品”的结算页体验。'
+        },
+        sections: {
+          layout: [
+            {label: '主奖励卡尺寸', value: '大', percent: 72, hint: '主奖励必须有压倒性主视觉。'},
+            {label: '次级信息层数', value: '2 层', percent: 24, hint: '别把所有数据同权展示。'}
+          ],
+          behavior: [
+            {label: '展开顺序', value: '主奖励先出现', percent: 70, hint: '优先给最爽的那一下。'},
+            {label: '可点击跳过时机', value: '1.4 s', percent: 40, hint: '先让爽点发生，再允许跳过。'}
+          ],
+          feedback: [
+            {label: '掉落闪光强度', value: '中高', percent: 58, hint: '用在主奖励，不要全屏都亮。'},
+            {label: '升级音重音', value: '强', percent: 76, hint: '让“变强”这一下非常明确。'}
+          ],
+          web: [
+            {label: '卡片阴影层级', value: '2 层', percent: 32, hint: '保留厚度，但别做成电商卡片。'}
+          ]
+        }
+      },
+      shop: {
+        name: '商店循环',
+        summary: '购买反馈、稀有度和重抽节奏。',
+        board: [
+          {
+            title: '买东西也得像推进旅程',
+            note: '商店不是抽奖页，要让每次购买像在为下一段冒险做准备。',
+            tags: ['旅程补给', '稀有度']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：商店循环',
+          userText: '我想让商店更有选择感，不想只是看价格。',
+          aiText: '建议把“重抽节奏、稀有度提示和购买确认”拆成三条线来调。选择感不等于堆更多商品。',
+          suggestions: [
+            {title: '推荐 1：少而准', text: '先减少同屏选项，让每张卡更像选择而不是噪音。'},
+            {title: '推荐 2：重抽像赌博', text: '重抽那一下要有心理预期落差。'}
+          ],
+          composer: '输入示例：帮我把商店做得更有选择感和稀有感。'
+        },
+        sections: {
+          layout: [
+            {label: '同屏商品数', value: '4 张', percent: 34, hint: '太多会像列表页。'},
+            {label: '稀有商品占位', value: '双列宽', percent: 60, hint: '更能体现层级。'}
+          ],
+          behavior: [
+            {label: '重抽冷却', value: '9 s', percent: 30, hint: '冷却会让选择更有重量。'},
+            {label: '稀有度出现率', value: '8%', percent: 16, hint: '保留期待感。'}
+          ],
+          feedback: [
+            {label: '购买成功重音', value: '中', percent: 44, hint: '不要压过战斗和结算的爽点。'}
+          ],
+          web: [
+            {label: '商品卡信息密度', value: '中低', percent: 30, hint: '别像电商页。'}
+          ]
+        }
+      },
+      sound: {
+        name: '音效层',
+        summary: '命中、提示、危险和胜利音的组织方式。',
+        board: [
+          {
+            title: '危险来自声音组织',
+            note: '不是所有危险都要靠红光，很多时候靠声音就够了。',
+            tags: ['高频提示', '低频压迫']
+          }
+        ],
+        chat: {
+          userTitle: '当前节点：音效层',
+          userText: '我希望声音更有组织，不是一堆提示同时响。',
+          aiText: '先划清层级：命中是基础，危险是打断，胜利是释放。只要角色分工清楚，整体就不会乱。',
+          suggestions: [
+            {title: '推荐 1：减少同频提示', text: '多个提示别在同一频段抢位置。'},
+            {title: '推荐 2：把危险做冷', text: '危险音色稍冷一点，更容易立住。'}
+          ],
+          composer: '输入示例：帮我规划命中、危险和胜利三类音效的层级。'
+        },
+        sections: {
+          behavior: [
+            {label: '危险提示触发冷却', value: '1.8 s', percent: 34, hint: '防止连续轰炸耳朵。'}
+          ],
+          feedback: [
+            {label: '命中音存在感', value: '中', percent: 46, hint: '要有满足感，但不能太抢。'},
+            {label: '危险音冷感', value: '中高', percent: 64, hint: '危险不是响，是先被听出来。'},
+            {label: '胜利音延展', value: '1.4 s', percent: 40, hint: '让玩家真的感到收束。'}
+          ]
+        }
+      }
+    }
+
+    const boardList = document.getElementById('board-list')
+    const focusName = document.getElementById('focus-name')
+    const focusSummary = document.getElementById('focus-summary')
+    const chatStack = document.getElementById('chat-stack')
+    const suggestionList = document.getElementById('suggestion-list')
+    const composerBox = document.getElementById('composer-box')
+    const tuningGrid = document.getElementById('tuning-grid')
+    const tuningCount = document.getElementById('tuning-count')
+    const nodeButtons = [...document.querySelectorAll('.node-btn')]
+
+    function renderBoard(items) {
+      boardList.innerHTML = items.map((item) => `
+        <article class="board-card">
+          <div class="board-card__head">
+            <strong>${item.title}</strong>
+            <span class="badge">已挂节点</span>
+          </div>
+          <p>${item.note}</p>
+          <div class="chips">${item.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
+        </article>
+      `).join('')
+    }
+
+    function renderChat(data) {
+      chatStack.innerHTML = `
+        <div class="bubble user">
+          <strong>${data.userTitle}</strong>
+          <p>${data.userText}</p>
+        </div>
+        <div class="bubble ai">
+          <strong>AI 推荐</strong>
+          <p>${data.aiText}</p>
+        </div>
+      `
+
+      suggestionList.innerHTML = data.suggestions.map((item) => `
+        <article class="suggestion">
+          <strong>${item.title}</strong>
+          <span>${item.text}</span>
+        </article>
+      `).join('')
+
+      composerBox.textContent = data.composer
+    }
+
+    function renderTuning(sections) {
+      const activeSections = Object.entries(sections).filter(([key, items]) => {
+        return ['layout', 'web'].includes(key) && Array.isArray(items) && items.length
+      })
+
+      tuningCount.textContent = `${activeSections.length} 个精修窗`
+      tuningGrid.innerHTML = activeSections.map(([key, items]) => {
+        const meta = SECTION_META[key]
+        return `
+          <article class="tune-window">
+            <div class="tune-bar">
+              <div class="tune-bar__title"><span class="dot ${meta.dotClass}"></span>${meta.title}</div>
+              <span class="badge">${meta.badge}</span>
+            </div>
+            <div class="tune-body">
+              <div class="tune-copy">${meta.copy}</div>
+              <div class="control-list">
+                ${items.map((item) => `
+                  <label class="control-row">
+                    <div class="control-top">
+                      <strong>${item.label}</strong>
+                      <span>${item.value}</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="${item.percent}">
+                    <small>${item.hint}</small>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          </article>
+        `
+      }).join('')
+    }
+
+    function setActiveNode(nodeId) {
+      const data = NODE_DATA[nodeId]
+      if (!data) return
+
+      nodeButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.nodeId === nodeId)
+      })
+
+      focusName.textContent = data.name
+      focusSummary.textContent = `当前焦点：${data.summary}`
+
+      renderBoard(data.board)
+      renderChat(data.chat)
+      renderTuning(data.sections)
+    }
+
+    nodeButtons.forEach((button) => {
+      button.addEventListener('click', () => setActiveNode(button.dataset.nodeId))
+    })
+
+    setActiveNode('hero')
+  </script>
+</body>
+</html>

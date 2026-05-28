@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Tool Preview</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --panel-soft:#f3f5fa;
+      --line:#d9dfeb;
+      --text:#111827;
+      --muted:#6b7280;
+      --green:#0c9b6d;
+      --green-soft:#dff7ee;
+      --pink:#ff4d73;
+      --pink-soft:#ffe6ec;
+      --gold:#f2a93b;
+      --gold-soft:#fff0d9;
+      --blue:#2998ff;
+      --blue-soft:#e8f3ff;
+      --shadow:0 16px 48px rgba(17,24,39,.08);
+      --radius:22px;
+      --font:"SF Pro Display","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(41,152,255,.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(255,77,115,.07), transparent 28%),
+        linear-gradient(180deg, #fbfcff 0%, var(--bg) 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:1420px;margin:0 auto;padding:28px 24px 56px}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-bottom:22px}
+    .card{
+      background:rgba(255,255,255,.86);
+      border:1px solid rgba(217,223,235,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(10px);
+    }
+    .hero-main{padding:28px 30px}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:13px;font-weight:700}
+    h1{margin:16px 0 10px;font-size:34px;line-height:1.15}
+    .sub{margin:0;color:var(--muted);font-size:16px;line-height:1.75;max-width:720px}
+    .hero-side{padding:24px}
+    .mini-title{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+    .param-tree{display:grid;gap:10px}
+    .tree-group{padding:14px;border-radius:18px;background:var(--panel-soft);border:1px solid var(--line)}
+    .tree-root{font-size:16px;font-weight:800;margin-bottom:8px}
+    .tree-branch{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;color:var(--text)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .option{padding:18px}
+    .option-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .option-tag{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+    .option-tag.reco{background:var(--green-soft);color:var(--green)}
+    .option-tag.vibe{background:var(--pink-soft);color:var(--pink)}
+    .option-tag.safe{background:var(--blue-soft);color:var(--blue)}
+    .option h2{margin:0;font-size:20px}
+    .option p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .mock{
+      margin-top:16px;
+      height:520px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#fcfdff 0%,#f2f5fa 100%);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .mock-bar{
+      height:44px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      background:#fff;
+      flex-shrink:0;
+    }
+    .mock-title{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:800}
+    .dot{width:9px;height:9px;border-radius:50%}
+    .dot.pink{background:var(--pink)}
+    .dot.green{background:var(--green)}
+    .dot.gold{background:var(--gold)}
+    .mock-body{flex:1;min-height:0;padding:14px;display:grid;gap:12px}
+    .single-layout{grid-template-columns:180px 1fr}
+    .double-layout{grid-template-columns:220px 1fr}
+    .triple-layout{grid-template-columns:240px 1fr}
+    .sidepanel,.inspector,.vibe{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      min-height:0;
+    }
+    .sidepanel{padding:14px;display:flex;flex-direction:column;gap:10px}
+    .section{border-radius:14px;background:var(--panel-soft);padding:12px;border:1px solid transparent}
+    .section.active{border-color:#afd7ff;background:#eef6ff}
+    .section h3{margin:0 0 6px;font-size:14px}
+    .section small{display:block;color:var(--muted);line-height:1.55}
+    .inspector{padding:16px;display:flex;flex-direction:column;gap:12px}
+    .subhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .subhead strong{font-size:18px}
+    .pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
+    .pill.pink{background:var(--pink-soft);color:var(--pink)}
+    .pill.green{background:var(--green-soft);color:var(--green)}
+    .pill.gold{background:var(--gold-soft);color:#b57516}
+    .folder{
+      padding:14px;border-radius:16px;border:1px solid var(--line);background:#fff;
+      display:grid;gap:12px;
+    }
+    .folder-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .folder-title{font-size:15px;font-weight:800}
+    .rows{display:grid;gap:10px}
+    .row{display:grid;grid-template-columns:108px 1fr 54px;align-items:center;gap:10px}
+    .row label{font-size:13px;color:var(--muted)}
+    .slider{
+      height:8px;border-radius:999px;background:linear-gradient(90deg,#dbeafe,#eef2ff);position:relative;overflow:hidden;
+    }
+    .slider::before{
+      content:"";position:absolute;left:0;top:0;bottom:0;width:var(--fill,55%);border-radius:999px;background:linear-gradient(90deg,var(--green),#58d39d);
+    }
+    .value{font-size:12px;font-weight:700;color:var(--text);text-align:right}
+    .note{
+      padding:14px;border-radius:16px;background:linear-gradient(180deg,#fff8ef,#fff);border:1px solid #f7d6a7;color:#915d14;font-size:13px;line-height:1.7
+    }
+    .two-panels{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;min-height:0}
+    .vibe{padding:14px;display:grid;grid-template-rows:auto 1fr;gap:12px}
+    .mood-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .mood{
+      min-height:88px;border-radius:16px;border:1px solid var(--line);padding:12px;
+      display:flex;flex-direction:column;justify-content:space-between;background:#fff;
+    }
+    .mood b{font-size:14px}
+    .mood span{font-size:12px;color:var(--muted);line-height:1.5}
+    .mood.green{background:linear-gradient(180deg,#effdf6,#fff)}
+    .mood.pink{background:linear-gradient(180deg,#fff1f5,#fff)}
+    .mood.gold{background:linear-gradient(180deg,#fff8ea,#fff)}
+    .mood.blue{background:linear-gradient(180deg,#eef6ff,#fff)}
+    .stack{display:grid;gap:12px;min-height:0}
+    .mini-window{
+      border:1px solid var(--line);border-radius:18px;background:#fff;min-height:0;padding:14px;display:grid;gap:10px;
+    }
+    .mini-window .folder{background:var(--panel-soft)}
+    .footer-note{
+      margin-top:18px;padding:16px 18px;border-radius:18px;background:#fff;border:1px solid var(--line);color:var(--muted);line-height:1.8;font-size:14px
+    }
+    @media (max-width: 1180px){
+      .hero,.grid,.two-panels{grid-template-columns:1fr}
+      .mock{height:auto;min-height:520px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">已基于当前游戏代码抽取参数</div>
+        <h1>设计工具不该再是几个输入框，它应该是“参数目录 + 对象检查器 + vibe 语义层”</h1>
+        <p class="sub">
+          现在这份游戏真实能识别到的层级，已经不只是 <strong>背景 / 蛇身 / 食物 / 画布宽高</strong>。
+          从默认代码里，我能明确抽出 <strong>画布尺寸、网格密度、蛇头/蛇身样式、食物半径与发光、升级节奏、速度下限、穿墙规则、初始长度</strong> 这些参数。
+          所以新的设计工具更适合做成“目录式调参”而不是一页表单。
+        </p>
+      </div>
+      <div class="card hero-side">
+        <div class="mini-title">当前代码里能直接识别的参数层级</div>
+        <div class="param-tree">
+          <div class="tree-group">
+            <div class="tree-root">背景 / 场景</div>
+            <div class="tree-branch">
+              <span class="chip">画布宽度 400</span>
+              <span class="chip">画布高度 400</span>
+              <span class="chip">背景色 #050912</span>
+              <span class="chip">网格线颜色</span>
+              <span class="chip">HUD 间距</span>
+            </div>
+          </div>
+          <div class="tree-group">
+            <div class="tree-root">自己 / 蛇身</div>
+            <div class="tree-branch">
+              <span class="chip">格子尺寸 SZ=20</span>
+              <span class="chip">初始长度 3</span>
+              <span class="chip">蛇头圆角 5</span>
+              <span class="chip">身体圆角 3</span>
+              <span class="chip">蛇头高亮</span>
+              <span class="chip">尾部透明衰减</span>
+            </div>
+          </div>
+          <div class="tree-group">
+            <div class="tree-root">目标 / 食物</div>
+            <div class="tree-branch">
+              <span class="chip">食物颜色 #ff2c6d</span>
+              <span class="chip">发光强度 18</span>
+              <span class="chip">半径 SZ/2-3</span>
+              <span class="chip">刷新逻辑 mk()</span>
+            </div>
+          </div>
+          <div class="tree-group">
+            <div class="tree-root">规则 / 节奏</div>
+            <div class="tree-branch">
+              <span class="chip">初始速度 145</span>
+              <span class="chip">每 5 分升级</span>
+              <span class="chip">最小速度 55</span>
+              <span class="chip">穿墙移动</span>
+              <span class="chip">碰撞结束</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card option">
+        <div class="option-head">
+          <h2>方案 A: 单窗参数目录</h2>
+          <span class="option-tag safe">最稳</span>
+        </div>
+        <p>把设计工具重做成一个真正的目录窗。左侧是对象树，右侧是参数面板。适合先把“背景 / 自己 / 食物 / 规则”这些可调项系统化。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot pink"></span>设计目录</div>
+            <span class="pill green">一个窗就能落地</span>
+          </div>
+          <div class="mock-body single-layout">
+            <div class="sidepanel">
+              <div class="section active">
+                <h3>背景</h3>
+                <small>画布大小 / 背景色 / 网格</small>
+              </div>
+              <div class="section">
+                <h3>自己</h3>
+                <small>蛇头 / 蛇身 / 移动手感</small>
+              </div>
+              <div class="section">
+                <h3>食物</h3>
+                <small>颜色 / 半径 / 发光</small>
+              </div>
+              <div class="section">
+                <h3>规则</h3>
+                <small>速度 / 升级 / 穿墙</small>
+              </div>
+            </div>
+            <div class="inspector">
+              <div class="subhead">
+                <strong>背景 &gt; 画布</strong>
+                <span class="pill gold">当前可直接应用</span>
+              </div>
+              <div class="folder">
+                <div class="folder-head">
+                  <div class="folder-title">画布大小</div>
+                  <span class="pill green">基础层</span>
+                </div>
+                <div class="rows">
+                  <div class="row"><label>宽度</label><div class="slider" style="--fill:62%"></div><div class="value">400</div></div>
+                  <div class="row"><label>高度</label><div class="slider" style="--fill:62%"></div><div class="value">400</div></div>
+                  <div class="row"><label>格子尺寸</label><div class="slider" style="--fill:44%"></div><div class="value">20</div></div>
+                </div>
+              </div>
+              <div class="folder">
+                <div class="folder-head">
+                  <div class="folder-title">视觉</div>
+                  <span class="pill pink">表现层</span>
+                </div>
+                <div class="rows">
+                  <div class="row"><label>背景深度</label><div class="slider" style="--fill:73%"></div><div class="value">#050912</div></div>
+                  <div class="row"><label>网格显影</label><div class="slider" style="--fill:31%"></div><div class="value">0.5</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card option">
+        <div class="option-head">
+          <h2>方案 B: 目录窗 + 对象检查器</h2>
+          <span class="option-tag reco">推荐</span>
+        </div>
+        <p>把“目录浏览”和“深层调参”拆开。一个窗负责树状导航，一个窗负责对象级参数。适合你后面说的那种深定义对象，比如“樱桃炸弹 &gt; 攻击范围 / 所需能量 / 杀伤力”。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot green"></span>设计工具组</div>
+            <span class="pill green">更接近产品形态</span>
+          </div>
+          <div class="mock-body double-layout">
+            <div class="sidepanel">
+              <div class="section active">
+                <h3>背景</h3>
+                <small>画布 / HUD / 网格</small>
+              </div>
+              <div class="section">
+                <h3>自己</h3>
+                <small>蛇头 / 蛇身 / 拖尾 / 速度</small>
+              </div>
+              <div class="section">
+                <h3>植物</h3>
+                <small>樱桃炸弹 / 冰蘑菇 / 能量槽</small>
+              </div>
+              <div class="section">
+                <h3>规则</h3>
+                <small>升级节奏 / 失败条件 / 刷新</small>
+              </div>
+            </div>
+            <div class="two-panels">
+              <div class="inspector">
+                <div class="subhead">
+                  <strong>对象目录</strong>
+                  <span class="pill pink">目录层</span>
+                </div>
+                <div class="folder">
+                  <div class="folder-head">
+                    <div class="folder-title">植物</div>
+                    <span class="pill gold">可展开</span>
+                  </div>
+                  <div class="rows">
+                    <div class="chip">樱桃炸弹</div>
+                    <div class="chip">寒冰蘑菇</div>
+                    <div class="chip">双发射手</div>
+                  </div>
+                </div>
+                <div class="note">
+                  这里不直接摆 slider，而是先告诉用户“有哪些对象可以被调”。  
+                  这一步对 vibe design 很重要，因为它让世界观元素先成立，再谈数值。
+                </div>
+              </div>
+              <div class="inspector">
+                <div class="subhead">
+                  <strong>樱桃炸弹</strong>
+                  <span class="pill green">深层参数</span>
+                </div>
+                <div class="folder">
+                  <div class="folder-head">
+                    <div class="folder-title">战斗参数</div>
+                    <span class="pill pink">对象级</span>
+                  </div>
+                  <div class="rows">
+                    <div class="row"><label>攻击范围</label><div class="slider" style="--fill:58%"></div><div class="value">3 格</div></div>
+                    <div class="row"><label>所需能量</label><div class="slider" style="--fill:37%"></div><div class="value">25</div></div>
+                    <div class="row"><label>杀伤力</label><div class="slider" style="--fill:79%"></div><div class="value">120</div></div>
+                    <div class="row"><label>引爆延迟</label><div class="slider" style="--fill:23%"></div><div class="value">0.6s</div></div>
+                  </div>
+                </div>
+                <div class="folder">
+                  <div class="folder-head">
+                    <div class="folder-title">表现参数</div>
+                    <span class="pill gold">vibe 层</span>
+                  </div>
+                  <div class="rows">
+                    <div class="row"><label>爆炸色温</label><div class="slider" style="--fill:72%"></div><div class="value">热烈</div></div>
+                    <div class="row"><label>烟雾厚度</label><div class="slider" style="--fill:48%"></div><div class="value">中</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card option">
+        <div class="option-head">
+          <h2>方案 C: Vibe Design 工作台</h2>
+          <span class="option-tag vibe">更激进</span>
+        </div>
+        <p>不是只调数值，而是先定“氛围语言”。适合你说的深定义玩法，把抽象词比如“软萌 / 危险 / 机械 / 春日”翻译成参数组合。一个窗通常不够，会更像一组协同窗口。</p>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-title"><span class="dot gold"></span>Vibe Design</div>
+            <span class="pill pink">需要多窗协同</span>
+          </div>
+          <div class="mock-body triple-layout">
+            <div class="sidepanel">
+              <div class="section active">
+                <h3>世界观</h3>
+                <small>春日花园 / 夜间赛博 / 玩具宇宙</small>
+              </div>
+              <div class="section">
+                <h3>对象库</h3>
+                <small>玩家 / 敌人 / 植物 / 道具</small>
+              </div>
+              <div class="section">
+                <h3>语义映射</h3>
+                <small>热烈 / 柔软 / 危险 / 机械</small>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="mini-window">
+                <div class="subhead">
+                  <strong>氛围板</strong>
+                  <span class="pill pink">语义层</span>
+                </div>
+                <div class="mood-grid">
+                  <div class="mood green"><b>软萌</b><span>更圆角、更浅色、更低伤害</span></div>
+                  <div class="mood pink"><b>危险</b><span>更高对比、更快节奏、更强爆发</span></div>
+                  <div class="mood gold"><b>春日</b><span>明亮草色、花粉粒子、低压氛围</span></div>
+                  <div class="mood blue"><b>机械</b><span>硬边、金属色、规则网格</span></div>
+                </div>
+              </div>
+              <div class="mini-window">
+                <div class="subhead">
+                  <strong>参数映射</strong>
+                  <span class="pill green">翻译层</span>
+                </div>
+                <div class="folder">
+                  <div class="folder-head">
+                    <div class="folder-title">“危险樱桃炸弹” 自动映射</div>
+                    <span class="pill gold">AI 可参与</span>
+                  </div>
+                  <div class="rows">
+                    <div class="row"><label>杀伤力</label><div class="slider" style="--fill:88%"></div><div class="value">+40%</div></div>
+                    <div class="row"><label>预警闪烁</label><div class="slider" style="--fill:74%"></div><div class="value">增强</div></div>
+                    <div class="row"><label>爆炸半径</label><div class="slider" style="--fill:64%"></div><div class="value">+1 格</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="vibe">
+              <div class="subhead">
+                <strong>对象检查器</strong>
+                <span class="pill green">落地层</span>
+              </div>
+              <div class="stack">
+                <div class="mini-window">
+                  <div class="folder">
+                    <div class="folder-head">
+                      <div class="folder-title">自己 &gt; 蛇身</div>
+                      <span class="pill pink">可精调</span>
+                    </div>
+                    <div class="rows">
+                      <div class="row"><label>宽度</label><div class="slider" style="--fill:46%"></div><div class="value">16px</div></div>
+                      <div class="row"><label>圆角</label><div class="slider" style="--fill:60%"></div><div class="value">5</div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mini-window">
+                  <div class="folder">
+                    <div class="folder-head">
+                      <div class="folder-title">背景 &gt; 画布大小</div>
+                      <span class="pill gold">基础约束</span>
+                    </div>
+                    <div class="rows">
+                      <div class="row"><label>宽度</label><div class="slider" style="--fill:60%"></div><div class="value">400</div></div>
+                      <div class="row"><label>高度</label><div class="slider" style="--fill:60%"></div><div class="value">400</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer-note card">
+      我的建议是先走 <strong>方案 B</strong>：先把“目录窗 + 对象检查器”做出来，再把方案 C 里的 <strong>vibe 语义层</strong> 作为第二阶段加进去。  
+      原因是：它已经足够支持你说的“背景 &gt; 画布大小 / 自己 &gt; 蛇身 / 植物 &gt; 樱桃炸弹”这类深层参数目录，同时不会一下把系统做得太重。
+    </div>
+  </div>
+</body>
+</html>

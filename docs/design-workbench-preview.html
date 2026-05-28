@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设计工作台预览</title>
+  <style>
+    :root{
+      --bg:#f3efe8;
+      --panel:#fffdf9;
+      --panel-soft:#f8f4ed;
+      --line:#ded6cb;
+      --text:#18202b;
+      --muted:#6b7280;
+      --green:#1f8a70;
+      --green-soft:#ddefe9;
+      --blue:#4d78c9;
+      --blue-soft:#e6ecf8;
+      --red:#c9665a;
+      --red-soft:#f7e7e2;
+      --gold:#b68a3e;
+      --gold-soft:#f7edd7;
+      --plum:#7c67b8;
+      --plum-soft:#ede7fa;
+      --shadow:0 18px 38px rgba(30,32,36,.08);
+      --radius:24px;
+      --font:"IBM Plex Sans","PingFang SC","Microsoft YaHei",sans-serif;
+      --display:"Manrope","IBM Plex Sans","PingFang SC",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+    }
+    .wrap{max-width:1480px;margin:0 auto;padding:24px}
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero-main{padding:28px 30px}
+    .eyebrow{
+      display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;
+      background:var(--green-soft);color:var(--green);font-size:13px;font-weight:800;letter-spacing:.02em
+    }
+    h1{
+      margin:14px 0 12px;
+      font:800 36px/1.08 var(--display);
+      letter-spacing:-.03em;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.8;
+      max-width:760px;
+    }
+    .hero-side{padding:22px}
+    .mini-title{
+      margin-bottom:12px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .insights{display:grid;gap:10px}
+    .insight{
+      padding:13px 14px;
+      border-radius:18px;
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+    }
+    .insight strong{display:block;font-size:15px;margin-bottom:4px}
+    .insight span{display:block;font-size:13px;color:var(--muted);line-height:1.7}
+
+    .workspace{
+      display:grid;
+      grid-template-columns:300px 1fr 360px;
+      gap:18px;
+      align-items:start;
+    }
+    .left-col,.right-col{display:grid;gap:18px}
+    .window{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .bar{
+      height:46px;
+      padding:0 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--line);
+      background:#fbf8f3;
+    }
+    .title{
+      display:flex;align-items:center;gap:9px;
+      font:800 15px/1 var(--display);
+      letter-spacing:-.01em;
+    }
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.green{background:var(--green)}
+    .dot.blue{background:var(--blue)}
+    .dot.red{background:var(--red)}
+    .dot.gold{background:var(--gold)}
+    .bar-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .bar-btn{
+      display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;
+      border:1px solid var(--line);background:var(--panel);font-size:11px;font-weight:700;color:var(--muted)
+    }
+    .body{padding:16px}
+
+    .tree-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tool{
+      display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line);background:var(--panel-soft);font-size:12px;font-weight:700;color:var(--text);cursor:pointer
+    }
+    .tool.active{background:var(--blue-soft);border-color:#bfd0ef;color:var(--blue)}
+    .tree{display:grid;gap:8px}
+    .tree-item{
+      padding:12px 12px 12px 14px;border-radius:18px;border:1px solid transparent;background:var(--panel-soft);cursor:pointer
+    }
+    .tree-item:hover{border-color:#c9d6ef}
+    .tree-item.active{background:#eef3fb;border-color:#bfd0ef}
+    .tree-item strong{display:block;font-size:15px;margin-bottom:4px}
+    .tree-item span{display:block;font-size:12px;color:var(--muted);line-height:1.6}
+    .tree-children{display:grid;gap:6px;margin-top:10px;padding-left:12px;border-left:1px dashed #d8dce6}
+    .tree-leaf{
+      padding:9px 10px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:13px;color:var(--text);cursor:pointer
+    }
+    .tree-leaf.active{border-color:#bfd0ef;background:#f6f9ff}
+
+    .graph-head{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px
+    }
+    .graph-head h2{
+      margin:0;
+      font:800 28px/1.1 var(--display);
+      letter-spacing:-.03em;
+    }
+    .graph-head p{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.7;max-width:640px}
+    .graph-scope{
+      display:flex;gap:8px;flex-wrap:wrap
+    }
+    .scope{
+      display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line);
+      background:var(--panel-soft);font-size:12px;font-weight:700;color:var(--text)
+    }
+    .scope.active{background:var(--green-soft);border-color:#b9ddd2;color:var(--green)}
+    .graph{
+      position:relative;
+      min-height:620px;
+      border-radius:26px;
+      border:1px solid var(--line);
+      background:#faf7f1;
+      overflow:hidden;
+    }
+    .graph::before{
+      content:"";
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(to right, rgba(222,214,203,.5) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(222,214,203,.5) 1px, transparent 1px);
+      background-size:48px 48px;
+      pointer-events:none;
+    }
+    .node{
+      position:absolute;
+      min-width:170px;
+      padding:14px 14px 12px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:#fff;
+      box-shadow:0 10px 24px rgba(26,32,43,.06);
+      cursor:pointer;
+    }
+    .node.active{border-color:#bfd0ef;box-shadow:0 0 0 3px rgba(77,120,201,.08),0 10px 24px rgba(26,32,43,.08)}
+    .node small{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+    .node strong{display:block;font-size:17px;margin-bottom:4px}
+    .node span{display:block;font-size:12px;color:var(--muted);line-height:1.6}
+    .node.scene{left:50%;top:56px;transform:translateX(-50%)}
+    .node.player{left:90px;top:210px}
+    .node.plants{left:50%;top:210px;transform:translateX(-50%)}
+    .node.rules{right:90px;top:210px}
+    .node.bomb{left:50%;top:392px;transform:translateX(-50%)}
+    .node.damage{left:210px;top:510px}
+    .node.fx{right:210px;top:510px}
+    svg.links{
+      position:absolute;inset:0;width:100%;height:100%;pointer-events:none
+    }
+    .links path{stroke:#cdd4e3;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .graph-legend{
+      position:absolute;left:18px;bottom:18px;
+      padding:12px 14px;border-radius:18px;background:#fff;border:1px solid var(--line);
+      display:grid;gap:6px;min-width:220px;box-shadow:0 10px 22px rgba(26,32,43,.05)
+    }
+    .legend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}
+    .legend-row b{color:var(--text)}
+
+    .section{
+      padding:14px;border-radius:20px;border:1px solid var(--line);background:var(--panel-soft)
+    }
+    .section h3{margin:0 0 8px;font:800 18px/1.2 var(--display)}
+    .section small{display:block;color:var(--muted);line-height:1.65}
+    .rows{display:grid;gap:12px;margin-top:12px}
+    .row{
+      display:grid;grid-template-columns:98px 1fr 58px;gap:10px;align-items:center
+    }
+    .row label{font-size:13px;color:var(--muted)}
+    .rail{
+      height:10px;border-radius:999px;background:#e7ebf3;overflow:hidden;position:relative
+    }
+    .rail::before{
+      content:"";position:absolute;left:0;top:0;bottom:0;width:var(--fill,52%);
+      background:var(--green);border-radius:999px
+    }
+    .row b{font-size:13px;text-align:right}
+    .schema{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .schema span{
+      display:inline-flex;align-items:center;padding:8px 10px;border-radius:999px;
+      background:#fff;border:1px solid var(--line);font-size:12px
+    }
+
+    .vibe-list{display:grid;gap:10px}
+    .vibe{
+      padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:#fff;cursor:pointer
+    }
+    .vibe.active{border-color:#d9c69c;background:#fcf8ef}
+    .vibe b{display:block;font-size:15px;margin-bottom:4px}
+    .vibe span{display:block;font-size:12px;color:var(--muted);line-height:1.65}
+    .scope-switch{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    .scope-chip{
+      display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:700
+    }
+    .scope-chip.active{background:var(--plum-soft);border-color:#d9cdf6;color:var(--plum)}
+    .impact{
+      padding:14px;border-radius:20px;border:1px solid var(--line);background:#fff
+    }
+    .impact h3{margin:0 0 10px;font:800 18px/1.2 var(--display)}
+    .impact ul{margin:0;padding-left:18px;display:grid;gap:8px;color:var(--muted);font-size:13px;line-height:1.6}
+    .impact b{color:var(--text)}
+
+    @media (max-width:1340px){
+      .hero,.workspace{grid-template-columns:1fr}
+      .graph{min-height:560px}
+      .node.scene{top:46px}
+      .node.player{left:56px}
+      .node.rules{right:56px}
+      .node.damage{left:120px}
+      .node.fx{right:120px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">设计工作台</div>
+        <h1>这次我不再画“舞台插画”，而是把中间主窗改成用户真正能操作的游戏结构图</h1>
+        <p class="sub">
+          你说得对，之前那套更像效果图，不像设计工具。新的主交互是：
+          <strong>在结构树里找对象</strong>、
+          <strong>在结构图里点节点</strong>、
+          <strong>在参数检查器里调值</strong>、
+          <strong>在 Vibe 映射里把风格作用到当前节点、作用到子树或全局</strong>。
+          而且这次我把渐变配色全拿掉了，改成平的、克制的视觉。
+        </p>
+      </div>
+      <div class="card hero-side">
+        <div class="mini-title">这几个窗口分别能做什么</div>
+        <div class="insights">
+          <div class="insight">
+            <strong>游戏结构树</strong>
+            <span>展开对象分类、切换当前对象、添加分组、整理层级。</span>
+          </div>
+          <div class="insight">
+            <strong>结构图</strong>
+            <span>看对象之间的父子关系和能力挂载关系，点节点就切换焦点。</span>
+          </div>
+          <div class="insight">
+            <strong>参数检查器</strong>
+            <span>调当前节点的尺寸、伤害、能量、表现等具体参数。</span>
+          </div>
+          <div class="insight">
+            <strong>Vibe 映射</strong>
+            <span>把风格作用到当前节点、作用到子树或全局，同时显示影响到哪些参数。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="left-col">
+        <div class="window">
+          <div class="bar">
+            <div class="title"><span class="dot green"></span>游戏结构树</div>
+            <div class="bar-actions">
+              <span class="bar-btn">展开</span>
+              <span class="bar-btn">新建</span>
+            </div>
+          </div>
+          <div class="body">
+            <div class="tree-tools">
+              <button class="tool active">对象</button>
+              <button class="tool">能力</button>
+              <button class="tool">规则</button>
+            </div>
+            <div class="tree">
+              <div class="tree-item">
+                <strong>场景</strong>
+                <span>画布、镜头、地块、背景层</span>
+                <div class="tree-children">
+                  <div class="tree-leaf">画布</div>
+                  <div class="tree-leaf">地块网格</div>
+                </div>
+              </div>
+              <div class="tree-item active">
+                <strong>植物</strong>
+                <span>所有可部署单位和派生能力</span>
+                <div class="tree-children">
+                  <div class="tree-leaf active">樱桃炸弹</div>
+                  <div class="tree-leaf">双发射手</div>
+                  <div class="tree-leaf">寒冰蘑菇</div>
+                </div>
+              </div>
+              <div class="tree-item">
+                <strong>敌人</strong>
+                <span>巡逻兵、冲锋兵、远程单位</span>
+              </div>
+              <div class="tree-item">
+                <strong>规则</strong>
+                <span>波次、碰撞、结算、资源刷新</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window">
+        <div class="bar">
+          <div class="title"><span class="dot blue"></span>结构图</div>
+          <div class="bar-actions">
+            <span class="bar-btn">聚焦子树</span>
+            <span class="bar-btn">查看能力关系</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="graph-head">
+            <div>
+              <h2>樱桃炸弹结构视图</h2>
+              <p>这个主窗不再是插画舞台，而是游戏对象树状结构图。你可以直接点节点切换对象、看父子关系、看能力归属。</p>
+            </div>
+            <div class="graph-scope">
+              <span class="scope">当前节点</span>
+              <span class="scope active">作用到子树</span>
+              <span class="scope">全局</span>
+            </div>
+          </div>
+          <div class="graph">
+            <svg class="links" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M500 100 C500 150 220 150 220 210"></path>
+              <path d="M500 100 C500 150 500 150 500 210"></path>
+              <path d="M500 100 C500 150 780 150 780 210"></path>
+              <path d="M500 270 C500 330 500 330 500 392"></path>
+              <path d="M500 486 C500 520 290 500 290 510"></path>
+              <path d="M500 486 C500 520 710 500 710 510"></path>
+            </svg>
+            <div class="node scene">
+              <small>Scene</small>
+              <strong>春日花园</strong>
+              <span>地块网格、天气、背景层</span>
+            </div>
+            <div class="node player">
+              <small>Actor</small>
+              <strong>玩家</strong>
+              <span>部署、能量、拖拽</span>
+            </div>
+            <div class="node plants">
+              <small>Group</small>
+              <strong>植物</strong>
+              <span>所有可部署植物对象</span>
+            </div>
+            <div class="node rules">
+              <small>Rules</small>
+              <strong>波次规则</strong>
+              <span>生成、推进、结算</span>
+            </div>
+            <div class="node bomb active">
+              <small>Ability</small>
+              <strong>樱桃炸弹</strong>
+              <span>爆炸、能量消耗、伤害</span>
+            </div>
+            <div class="node damage">
+              <small>Combat</small>
+              <strong>伤害模型</strong>
+              <span>范围、延迟、爆发</span>
+            </div>
+            <div class="node fx">
+              <small>Feedback</small>
+              <strong>爆炸表现</strong>
+              <span>色温、烟雾、预警闪烁</span>
+            </div>
+            <div class="graph-legend">
+              <div class="legend-row"><span>当前焦点</span><b>植物 &gt; 樱桃炸弹</b></div>
+              <div class="legend-row"><span>当前作用范围</span><b>作用到子树</b></div>
+              <div class="legend-row"><span>当前激活 vibe</span><b>春日花园 + 危险甜感</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="window">
+          <div class="bar">
+            <div class="title"><span class="dot gold"></span>参数检查器</div>
+            <div class="bar-actions">
+              <span class="bar-btn">回退</span>
+              <span class="bar-btn">锁定</span>
+            </div>
+          </div>
+          <div class="body">
+            <div class="section">
+              <h3>植物 &gt; 樱桃炸弹</h3>
+              <small>在结构图里选中对象后，这里只显示这个节点最关键的具体参数。</small>
+              <div class="rows">
+                <div class="row"><label>攻击范围</label><div class="rail" style="--fill:58%"></div><b>3 格</b></div>
+                <div class="row"><label>所需能量</label><div class="rail" style="--fill:34%"></div><b>25</b></div>
+                <div class="row"><label>杀伤力</label><div class="rail" style="--fill:82%"></div><b>120</b></div>
+                <div class="row"><label>引爆延迟</label><div class="rail" style="--fill:24%"></div><b>0.6s</b></div>
+              </div>
+            </div>
+            <div class="section" style="margin-top:12px">
+              <h3>Schema 注释</h3>
+              <small>底层 schema 还在，但它现在是支持层，不再挡在设计师入口前面。</small>
+              <div class="schema">
+                <span>ability.cherryBomb.range</span>
+                <span>ability.cherryBomb.cost</span>
+                <span>ability.cherryBomb.damage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="window">
+          <div class="bar">
+            <div class="title"><span class="dot red"></span>Vibe 映射</div>
+            <div class="bar-actions">
+              <span class="bar-btn">加入组合</span>
+              <span class="bar-btn">保存预设</span>
+            </div>
+          </div>
+          <div class="body">
+            <div class="vibe-list">
+              <div class="vibe active">
+                <b>春日花园</b>
+                <span>更明亮、更轻、更暖，粒子更柔和。</span>
+              </div>
+              <div class="vibe active">
+                <b>危险甜感</b>
+                <span>更强预警、更高爆发，但视觉依然保留可爱感。</span>
+              </div>
+              <div class="vibe">
+                <b>机械</b>
+                <span>更硬边、更冷色、更规则的反馈节奏。</span>
+              </div>
+            </div>
+            <div class="scope-switch">
+              <span class="scope-chip">作用到当前节点</span>
+              <span class="scope-chip active">作用到子树</span>
+              <span class="scope-chip">作用到全局</span>
+            </div>
+            <div class="impact">
+              <h3>已影响 8 个参数</h3>
+              <ul>
+                <li><b>攻击范围 +1</b>，因为危险甜感提高爆发感。</li>
+                <li><b>爆炸色温偏暖</b>，因为春日花园要求整体更暖。</li>
+                <li><b>烟雾透明度下降</b>，让爆炸更扎实但不至于太脏。</li>
+                <li><b>预警闪烁频率提升</b>，强化危险提示。</li>
+                <li><b>UI 警示色更饱和</b>，让设计师能一眼看出危险变化。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

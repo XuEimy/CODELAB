@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Tool Fusion Preview</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --soft:#f6f8fc;
+      --line:#d9dfeb;
+      --text:#111827;
+      --muted:#667085;
+      --green:#0b9b73;
+      --green-soft:#def8ee;
+      --pink:#ef4f79;
+      --pink-soft:#ffe9ef;
+      --gold:#efa93d;
+      --gold-soft:#fff4e2;
+      --blue:#2c92ff;
+      --blue-soft:#eaf3ff;
+      --shadow:0 18px 52px rgba(15,23,42,.08);
+      --radius:24px;
+      --font:"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(circle at 0 0, rgba(44,146,255,.08), transparent 22%),
+        radial-gradient(circle at 100% 0, rgba(239,79,121,.08), transparent 20%),
+        linear-gradient(180deg,#fbfcff 0%,var(--bg) 100%);
+    }
+    .wrap{max-width:1460px;margin:0 auto;padding:28px 24px 52px}
+    .card{
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(217,223,235,.92);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(10px);
+    }
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-bottom:20px}
+    .hero-main{padding:28px 30px}
+    .eyebrow{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:13px;font-weight:800}
+    h1{margin:14px 0 12px;font-size:34px;line-height:1.15}
+    .sub{margin:0;color:var(--muted);font-size:16px;line-height:1.75}
+    .hero-side{padding:24px}
+    .mini-title{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+    .stack{display:grid;gap:12px}
+    .note{
+      padding:14px 16px;border-radius:18px;background:var(--soft);border:1px solid var(--line)
+    }
+    .note strong{display:block;font-size:15px;margin-bottom:6px}
+    .note span{display:block;color:var(--muted);font-size:13px;line-height:1.65}
+    .stage{
+      padding:18px;border-radius:28px;background:linear-gradient(180deg,#fcfdff 0%,#f2f5fa 100%);
+      border:1px solid var(--line)
+    }
+    .stage-grid{display:grid;grid-template-columns:320px 1fr 330px;gap:18px;align-items:start}
+    .win{
+      background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 32px rgba(15,23,42,.06);overflow:hidden;
+    }
+    .bar{
+      height:42px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+      padding:0 14px;background:linear-gradient(180deg,#fff,#fafbfe);
+    }
+    .title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+    .dot{width:9px;height:9px;border-radius:50%}
+    .dot.green{background:var(--green)}
+    .dot.pink{background:var(--pink)}
+    .dot.gold{background:var(--gold)}
+    .subwin{padding:14px}
+    .dir-list{display:grid;gap:10px}
+    .dir{
+      padding:12px;border-radius:16px;background:var(--soft);border:1px solid transparent
+    }
+    .dir.active{background:#eef6ff;border-color:#b5d8ff}
+    .dir h3{margin:0 0 5px;font-size:15px}
+    .dir small{display:block;color:var(--muted);line-height:1.55}
+    .inspector{
+      display:grid;grid-template-rows:auto auto auto;gap:12px
+    }
+    .subhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .subhead strong{font-size:18px}
+    .pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+    .pill.green{background:var(--green-soft);color:var(--green)}
+    .pill.pink{background:var(--pink-soft);color:var(--pink)}
+    .pill.gold{background:var(--gold-soft);color:#9d6616}
+    .folder{
+      border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff;display:grid;gap:12px
+    }
+    .folder-title{font-size:15px;font-weight:800}
+    .rows{display:grid;gap:10px}
+    .row{display:grid;grid-template-columns:116px 1fr 58px;gap:10px;align-items:center}
+    .row label{font-size:13px;color:var(--muted)}
+    .slider{height:8px;border-radius:999px;background:#e8edf5;position:relative;overflow:hidden}
+    .slider::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--fill,58%);background:linear-gradient(90deg,var(--green),#5ed9a5);border-radius:999px}
+    .value{font-size:12px;font-weight:700;text-align:right}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
+    .mood-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mood{
+      min-height:88px;padding:12px;border-radius:16px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between
+    }
+    .mood.green{background:linear-gradient(180deg,#effdf6,#fff)}
+    .mood.pink{background:linear-gradient(180deg,#fff1f5,#fff)}
+    .mood.gold{background:linear-gradient(180deg,#fff8ea,#fff)}
+    .mood.blue{background:linear-gradient(180deg,#eef6ff,#fff)}
+    .mood b{font-size:14px}
+    .mood span{font-size:12px;color:var(--muted);line-height:1.6}
+    .impact{
+      border-radius:16px;border:1px solid var(--line);padding:14px;background:#fff7f9;display:grid;gap:10px
+    }
+    .impact strong{font-size:15px}
+    .impact ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:6px;font-size:13px;line-height:1.6}
+    .flow{
+      margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px
+    }
+    .flow-card{
+      padding:16px;border-radius:20px;background:#fff;border:1px solid var(--line)
+    }
+    .flow-card h2{margin:0 0 8px;font-size:20px}
+    .flow-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+    .footer{
+      margin-top:18px;padding:18px 20px;border-radius:20px;background:#fff;border:1px solid var(--line);color:var(--muted);line-height:1.8;font-size:14px
+    }
+    @media (max-width:1280px){
+      .hero,.stage-grid,.flow{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">1 + 3 融合，但拆成多窗口协同</div>
+        <h1>不是把所有东西塞进一个设计工具窗，而是把参数目录、对象检查器和 vibe 控制层分成 3 个协同窗口</h1>
+        <p class="sub">
+          这样你既能保留 <strong>参数目录主结构</strong>，又能把 <strong>vibe design</strong> 放进来，而且不会挤到看不清。
+          用户看到的是三个配合工作的窗口，底层其实还是同一套 <strong>游戏 schema 仍在底层</strong> 提供数据。
+        </p>
+      </div>
+      <div class="card hero-side">
+        <div class="mini-title">为什么要拆窗</div>
+        <div class="stack">
+          <div class="note">
+            <strong>参数目录窗</strong>
+            <span>负责“这个游戏里到底有哪些对象、哪些类别可以调”。它是导航，不负责深调。</span>
+          </div>
+          <div class="note">
+            <strong>对象检查器</strong>
+            <span>负责具体参数，比如 <strong>植物 > 樱桃炸弹</strong> 的攻击范围、所需能量、杀伤力。</span>
+          </div>
+          <div class="note">
+            <strong>vibe 控制窗</strong>
+            <span>负责“危险、春日、软萌、机械”这种抽象氛围，并明确显示它影响了哪些参数。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage card">
+      <div class="stage-grid">
+        <div class="win">
+          <div class="bar">
+            <div class="title"><span class="dot green"></span>参数目录窗</div>
+            <span class="pill green">通用骨架</span>
+          </div>
+          <div class="subwin">
+            <div class="dir-list">
+              <div class="dir">
+                <h3>场景 Scene</h3>
+                <small>画布、镜头、地图、背景层、天气</small>
+              </div>
+              <div class="dir active">
+                <h3>能力 Ability</h3>
+                <small>植物 / 技能 / 弹道 / 伤害 / 能量</small>
+              </div>
+              <div class="dir">
+                <h3>角色 Actor</h3>
+                <small>玩家、敌人、NPC、召唤物</small>
+              </div>
+              <div class="dir">
+                <h3>规则 Rules</h3>
+                <small>刷新节奏、碰撞、胜负条件、生成</small>
+              </div>
+              <div class="dir">
+                <h3>表现 Feedback</h3>
+                <small>粒子、音效、屏幕震动、UI 提示</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="win">
+          <div class="bar">
+            <div class="title"><span class="dot gold"></span>对象检查器</div>
+            <span class="pill gold">深层参数</span>
+          </div>
+          <div class="subwin inspector">
+            <div class="subhead">
+              <strong>植物 > 樱桃炸弹</strong>
+              <span class="pill pink">对象级参数</span>
+            </div>
+            <div class="folder">
+              <div class="folder-title">战斗参数</div>
+              <div class="rows">
+                <div class="row"><label>攻击范围</label><div class="slider" style="--fill:58%"></div><div class="value">3 格</div></div>
+                <div class="row"><label>所需能量</label><div class="slider" style="--fill:34%"></div><div class="value">25</div></div>
+                <div class="row"><label>杀伤力</label><div class="slider" style="--fill:82%"></div><div class="value">120</div></div>
+                <div class="row"><label>引爆延迟</label><div class="slider" style="--fill:24%"></div><div class="value">0.6s</div></div>
+              </div>
+            </div>
+            <div class="folder">
+              <div class="folder-title">表现参数</div>
+              <div class="rows">
+                <div class="row"><label>爆炸色温</label><div class="slider" style="--fill:72%"></div><div class="value">暖</div></div>
+                <div class="row"><label>烟雾厚度</label><div class="slider" style="--fill:48%"></div><div class="value">中</div></div>
+                <div class="row"><label>屏幕震动</label><div class="slider" style="--fill:52%"></div><div class="value">弱中</div></div>
+              </div>
+            </div>
+            <div class="folder">
+              <div class="folder-title">schema 注释</div>
+              <div class="chips">
+                <span class="chip">ability.cherryBomb.range</span>
+                <span class="chip">ability.cherryBomb.cost</span>
+                <span class="chip">ability.cherryBomb.damage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="win">
+          <div class="bar">
+            <div class="title"><span class="dot pink"></span>vibe 控制窗</div>
+            <span class="pill pink">风格控制层</span>
+          </div>
+          <div class="subwin">
+            <div class="mood-grid">
+              <div class="mood green">
+                <b>春日</b>
+                <span>更亮、更轻、更暖，粒子更柔和</span>
+              </div>
+              <div class="mood pink">
+                <b>危险</b>
+                <span>更大爆炸、更强预警、更高伤害</span>
+              </div>
+              <div class="mood blue">
+                <b>机械</b>
+                <span>更硬边、更冷色、更规则反馈</span>
+              </div>
+              <div class="mood gold">
+                <b>软萌</b>
+                <span>更圆角、更低压、更可爱提示</span>
+              </div>
+            </div>
+            <div class="impact">
+              <strong>已影响 8 个参数</strong>
+              <ul>
+                <li>攻击范围 +1</li>
+                <li>爆炸色温偏暖</li>
+                <li>烟雾透明度下降</li>
+                <li>预警闪烁频率提升</li>
+                <li>粒子拖尾更亮</li>
+                <li>爆炸边缘更柔</li>
+                <li>UI 警示色更饱和</li>
+                <li>屏幕震动强度 +15%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flow">
+      <article class="flow-card card">
+        <h2>1. 先走目录</h2>
+        <p>先从参数目录窗里进入对象类别。这里始终是稳定的通用骨架，未来换别的游戏也不变。</p>
+      </article>
+      <article class="flow-card card">
+        <h2>2. 再看对象</h2>
+        <p>对象检查器只负责深层调参。比如樱桃炸弹、二段跳、巡逻兵、地块毒雾，都在这一窗里精调。</p>
+      </article>
+      <article class="flow-card card">
+        <h2>3. 最后叠 vibe</h2>
+        <p>vibe 控制窗像一个高层滤镜，但不是黑盒，它会把影响到的参数列表明确展示出来。</p>
+      </article>
+    </section>
+
+    <div class="footer card">
+      我的建议是：真正实现时，先把 <strong>参数目录窗 + 对象检查器</strong> 落地，然后再接入 <strong>vibe 控制窗</strong>。  
+      这样你既能马上得到结构化调参，又能为后面的 vibe design 留足空间。
+    </div>
+  </div>
+</body>
+</html>

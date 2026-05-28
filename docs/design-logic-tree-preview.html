@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设计逻辑树预览</title>
+  <style>
+    :root{
+      --bg:#f2efe9;
+      --panel:#fffdf9;
+      --panel-soft:#f7f3ec;
+      --line:#d9d1c5;
+      --text:#1b2430;
+      --muted:#6e7684;
+      --green:#1f8a70;
+      --blue:#4d78c9;
+      --pink:#c65d7a;
+      --gold:#b58b41;
+      --shadow:0 14px 36px rgba(27,36,48,.08);
+      --radius:24px;
+      --font:"IBM Plex Sans","PingFang SC","Microsoft YaHei",sans-serif;
+      --display:"Manrope","IBM Plex Sans","PingFang SC",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+    }
+    .wrap{
+      max-width:1480px;
+      margin:0 auto;
+      padding:24px;
+      display:grid;
+      gap:18px;
+    }
+    .hero{
+      display:grid;
+      gap:14px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      min-height:32px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid #cfd8cb;
+      background:#e7f2ee;
+      color:var(--green);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      justify-self:start;
+    }
+    h1{
+      margin:0;
+      font:800 38px/1.08 var(--display);
+      letter-spacing:-.04em;
+    }
+    .hero p{
+      margin:0;
+      max-width:980px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.85;
+    }
+    .workspace{
+      display:grid;
+      grid-template-columns:1.05fr 1.4fr .9fr;
+      gap:18px;
+      align-items:start;
+    }
+    .window{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      min-height:280px;
+    }
+    .bar{
+      height:48px;
+      padding:0 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--line);
+      background:#fbf8f2;
+    }
+    .title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font:800 15px/1 var(--display);
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+    .dot.green{background:var(--green)}
+    .dot.blue{background:var(--blue)}
+    .dot.pink{background:var(--pink)}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+    .body{
+      padding:16px;
+      display:grid;
+      gap:14px;
+    }
+
+    .canvas-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .canvas-head strong,
+    .chat-head strong{
+      font-size:22px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+    }
+    .canvas-head span,
+    .chat-head span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .board{
+      display:grid;
+      gap:12px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+      padding:14px;
+      display:grid;
+      gap:8px;
+    }
+    .card strong{
+      font-size:15px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .chips span{
+      display:inline-flex;
+      align-items:center;
+      min-height:26px;
+      padding:0 9px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .node-canvas{
+      position:relative;
+      min-height:720px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:var(--panel-soft);
+      overflow:hidden;
+    }
+    .node-canvas::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        linear-gradient(to right, rgba(217,209,197,.42) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(217,209,197,.42) 1px, transparent 1px);
+      background-size:52px 52px;
+      pointer-events:none;
+    }
+    .node-root{
+      position:absolute;
+      left:50%;
+      top:46px;
+      transform:translateX(-50%);
+      min-width:180px;
+      min-height:44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 18px;
+      border-radius:999px;
+      border:1px solid #bfd0ec;
+      background:#edf3fd;
+      color:var(--blue);
+      font-size:14px;
+      font-weight:800;
+      z-index:2;
+    }
+    .node{
+      position:absolute;
+      width:210px;
+      padding:14px 14px 12px;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:0 10px 24px rgba(27,36,48,.05);
+      z-index:2;
+    }
+    .node.active{
+      border-color:#bfd0ec;
+      box-shadow:0 0 0 3px rgba(77,120,201,.08),0 10px 24px rgba(27,36,48,.06);
+    }
+    .node small{
+      display:block;
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .node strong{
+      display:block;
+      font-size:17px;
+      margin-bottom:5px;
+    }
+    .node span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .node.hero{left:88px;top:176px}
+    .node.gameplay{left:50%;top:176px;transform:translateX(-50%)}
+    .node.world{right:88px;top:176px}
+    .node.button{left:68px;top:380px}
+    .node.nav{left:260px;top:468px}
+    .node.boss{left:50%;top:380px;transform:translateX(-50%)}
+    .node.reward{left:50%;top:560px;transform:translateX(-50%)}
+    .node.shop{right:260px;top:468px}
+    .node.sound{right:68px;top:380px}
+    svg.links{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:1;
+    }
+    .links path{
+      fill:none;
+      stroke:#cdd4df;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .legend{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      width:240px;
+      padding:14px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:0 10px 20px rgba(27,36,48,.05);
+      z-index:2;
+      display:grid;
+      gap:8px;
+    }
+    .legend strong{
+      font-size:14px;
+    }
+    .legend span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    .chat-head{
+      display:grid;
+      gap:2px;
+    }
+    .prompt-stack{
+      display:grid;
+      gap:12px;
+    }
+    .bubble{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:14px;
+      background:var(--panel-soft);
+      display:grid;
+      gap:8px;
+    }
+    .bubble.ai{
+      background:#f3f7ff;
+      border-color:#cfdbf4;
+    }
+    .bubble.user{
+      background:#fff5f8;
+      border-color:#edd3dc;
+    }
+    .bubble strong{
+      font-size:13px;
+    }
+    .bubble p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.75;
+    }
+    .suggestions{
+      display:grid;
+      gap:10px;
+    }
+    .suggestion{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+      padding:12px;
+      display:grid;
+      gap:6px;
+    }
+    .suggestion strong{
+      font-size:13px;
+    }
+    .suggestion span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.65;
+    }
+    .composer{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--panel-soft);
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+    .composer-tools{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .composer-tools span{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+    }
+    .composer-box{
+      min-height:96px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--panel);
+      padding:14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+
+    @media (max-width:1360px){
+      .workspace{
+        grid-template-columns:1fr;
+      }
+      .node-canvas{
+        min-height:900px;
+      }
+      .node.hero{left:40px}
+      .node.world{right:40px}
+      .node.button{left:40px}
+      .node.sound{right:40px}
+      .node.nav{left:210px}
+      .node.shop{right:210px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">智慧树</span>
+      <h1>设计模式不该从参数表开始，而该从一张可视化的任务与游戏逻辑树开始</h1>
+      <p>
+        这一版把“文字目录”整个拿掉了。中间主窗不再列什么路径，而是直接用节点和连线把可改结构画出来。
+        左边是 <strong>游戏概览</strong>，可以承接参考、玩法卡、视觉卡和状态摘要；右边是
+        <strong>设计 Agent</strong>，它会围绕当前选中的节点给推荐、给方向、给修改建议。
+      </p>
+    </section>
+
+    <section class="workspace">
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot green"></span>游戏概览</div>
+          <span class="badge">Overview</span>
+        </div>
+        <div class="body">
+          <div class="canvas-head">
+            <div>
+              <strong>把“想法”先变成卡片，再挂到树上</strong>
+              <span>设计师不是先改参数，而是先拼 vibe、截图、情绪、玩法和重点节点。</span>
+            </div>
+          </div>
+          <div class="board">
+            <div class="card">
+              <strong>Hero 区</strong>
+              <p>首页第一屏更像“漂浮的冒险邀请函”，不要工具感太重。</p>
+              <div class="chips">
+                <span>明亮卡片</span>
+                <span>大标题</span>
+                <span>低压留白</span>
+              </div>
+            </div>
+            <div class="card">
+              <strong>Boss 战节奏</strong>
+              <p>中后段要从轻松切到压迫，镜头和音效都要提前预热。</p>
+              <div class="chips">
+                <span>预警闪动</span>
+                <span>节奏提速</span>
+                <span>危险渐进</span>
+              </div>
+            </div>
+            <div class="card">
+              <strong>奖励结算页</strong>
+              <p>不是普通弹窗，要像“战利品展开”一样，一次性给出反馈高潮。</p>
+              <div class="chips">
+                <span>展开动画</span>
+                <span>金属质感</span>
+              </div>
+            </div>
+            <div class="card">
+              <strong>世界氛围</strong>
+              <p>整体不是纯萌，而是“轻松里带一点未知危险”。</p>
+              <div class="chips">
+                <span>软萌外壳</span>
+                <span>危险底色</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot blue"></span>智慧树</div>
+          <span class="badge">Task Graph</span>
+        </div>
+        <div class="body">
+          <div class="node-canvas">
+            <div class="node-root">游戏世界观</div>
+            <svg class="links" viewBox="0 0 860 720" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M430 88 C430 118 160 136 160 176"></path>
+              <path d="M430 88 C430 118 430 136 430 176"></path>
+              <path d="M430 88 C430 118 700 136 700 176"></path>
+              <path d="M160 230 C160 276 120 310 120 380"></path>
+              <path d="M160 230 C160 290 255 320 255 468"></path>
+              <path d="M430 230 C430 286 430 316 430 380"></path>
+              <path d="M430 434 C430 478 430 508 430 560"></path>
+              <path d="M700 230 C700 276 740 310 740 380"></path>
+              <path d="M700 230 C700 290 605 320 605 468"></path>
+            </svg>
+            <article class="node hero active">
+              <small>Web Layer</small>
+              <strong>Hero 区</strong>
+              <span>首屏视觉、标题情绪、CTA 节奏</span>
+            </article>
+            <article class="node gameplay">
+              <small>Core Loop</small>
+              <strong>主玩法节奏</strong>
+              <span>成长、挑战、奖励循环</span>
+            </article>
+            <article class="node world">
+              <small>World Tone</small>
+              <strong>世界氛围</strong>
+              <span>色调、场景、音色、危险感</span>
+            </article>
+            <article class="node button">
+              <small>Entry</small>
+              <strong>开始按钮</strong>
+              <span>点击反馈、进入感、动效重量</span>
+            </article>
+            <article class="node nav">
+              <small>Flow</small>
+              <strong>导航动线</strong>
+              <span>页面切换、层级引导、停留点</span>
+            </article>
+            <article class="node boss">
+              <small>Challenge</small>
+              <strong>Boss 战节奏</strong>
+              <span>预警、强化、转阶段、高潮</span>
+            </article>
+            <article class="node reward">
+              <small>Reward</small>
+              <strong>奖励结算页</strong>
+              <span>战利品、升级、情绪释放</span>
+            </article>
+            <article class="node shop">
+              <small>Economy</small>
+              <strong>商店循环</strong>
+              <span>购买反馈、稀有度、重抽</span>
+            </article>
+            <article class="node sound">
+              <small>Feedback</small>
+              <strong>音效层</strong>
+              <span>命中、提示、危险、胜利音</span>
+            </article>
+            <div class="legend">
+              <strong>怎么用这张图</strong>
+              <span>点节点后，右侧聊天会围绕该节点给设计建议；左侧画布上的卡片也可以直接挂到某个节点上。</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="window">
+        <div class="bar">
+          <div class="title"><span class="dot pink"></span>设计 Agent</div>
+          <span class="badge">Design Copilot</span>
+        </div>
+        <div class="body">
+          <div class="chat-head">
+            <strong>围绕当前节点连续给你推荐</strong>
+            <span>这里不是普通聊天，而是一个会不断产出设计建议、参考方向和可落地修改的设计对话框。</span>
+          </div>
+          <div class="prompt-stack">
+            <div class="bubble user">
+              <strong>当前节点：Hero 区</strong>
+              <p>我希望首页第一屏看起来更像冒险邀请函，而不是普通工具站。</p>
+            </div>
+            <div class="bubble ai">
+              <strong>AI 推荐</strong>
+              <p>可以从这 3 个方向里选一个继续：一是“大标题 + 漂浮卡片”，二是“世界地图碎片感”，三是“像游戏开场海报一样的首屏”。我建议先走第一种，因为它更容易跟左侧的游戏概览协同。</p>
+            </div>
+          </div>
+          <div class="suggestions">
+            <div class="suggestion">
+              <strong>推荐 1：标题像邀请函</strong>
+              <span>标题更大，副标题更短，按钮像拿到任务后的“立即启程”。</span>
+            </div>
+            <div class="suggestion">
+              <strong>推荐 2：按钮先轻后猛</strong>
+              <span>默认状态克制，hover 时才明显发光，像“准备出发”的开关。</span>
+            </div>
+            <div class="suggestion">
+              <strong>推荐 3：把 Hero 挂到游戏概览</strong>
+              <span>我可以把这条建议自动变成概览卡片，并关联到当前节点。</span>
+            </div>
+          </div>
+          <div class="composer">
+            <div class="composer-tools">
+              <span>挂到节点</span>
+              <span>生成 3 个方案</span>
+              <span>给参考词</span>
+              <span>转成视觉卡片</span>
+            </div>
+            <div class="composer-box">
+              输入示例：我想让 Boss 战节奏更像“先平静、后压迫、最后突然收束”的那种感觉，并给我 3 个画面语言建议。
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</body>
+</html>
