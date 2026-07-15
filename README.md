@@ -2,6 +2,8 @@
 
 多人实时协作的游戏共创工具，支持五种工作模式，让策划、设计、开发在同一个房间里一起干活。
 
+**在线体验：** [https://xueimy.github.io/CODELAB/](https://xueimy.github.io/CODELAB/)
+
 ## 五种模式
 
 | 模式 | 功能 |
