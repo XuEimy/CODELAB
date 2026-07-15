@@ -6,6 +6,28 @@
 
 ![从传统协作到 Vibe Coding 协同](docs/assets/collaboration-model.png)
 
+## 产品展示
+
+### 在线演示
+
+![CODELAB 在线演示](docs/assets/product-showcase/live-demonstration.png)
+
+### 系统设计
+
+![CODELAB 系统设计概览](docs/assets/product-showcase/system-design-overview.png)
+
+![CODELAB 系统功能设计](docs/assets/product-showcase/system-design-features.png)
+
+### 工作流
+
+![CODELAB 工作流概览](docs/assets/product-showcase/workflow-overview.png)
+
+![CODELAB 工作流 1](docs/assets/product-showcase/workflow-01.png)
+
+![CODELAB 工作流 2](docs/assets/product-showcase/workflow-02.png)
+
+![CODELAB 工作流 3](docs/assets/product-showcase/workflow-03.png)
+
 ## 五种模式
 
 | 模式 | 功能 |
