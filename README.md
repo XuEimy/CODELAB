@@ -4,7 +4,7 @@
 
 **在线体验：** [https://xueimy.github.io/CODELAB/](https://xueimy.github.io/CODELAB/)
 
-![从传统协作到 Vibe Coding 协同](docs/assets/collaboration-model.svg)
+![从传统协作到 Vibe Coding 协同](docs/assets/collaboration-model.png)
 
 ## 五种模式
 
