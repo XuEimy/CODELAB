@@ -1634,7 +1634,7 @@ function Header({ theme, setTheme, connected, onSettings, users = [], pendingIss
       const node = myClaimedNodes[0];
       const cat = (categories || []).find(c => c.id === node.category);
       if (onBeforeEnter) onBeforeEnter();
-      window.location.href = `/app?taskId=${encodeURIComponent(node.id||'')}&task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName)}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`;
+      window.location.href = `./app.html?taskId=${encodeURIComponent(node.id||'')}&task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName)}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`;
       return;
     }
     setShowTaskPicker(true);
@@ -1675,7 +1675,7 @@ function Header({ theme, setTheme, connected, onSettings, users = [], pendingIss
 
   return (
     <header className="plan-header">
-      <a href="/" className="logo">CODE<em>LAB</em></a>
+      <a href="./" className="logo">CODE<em>LAB</em></a>
       <div className="vsep"></div>
       <div className="room-chip" onClick={copyRoom} title="点击复制房间号">
         <span className="room-lbl">ROOM</span>
@@ -1778,7 +1778,7 @@ function Header({ theme, setTheme, connected, onSettings, users = [], pendingIss
                   <a key={node.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg3)',cursor:'pointer',transition:'all .15s var(--ease)',textDecoration:'none',color:'inherit'}}
                     onMouseEnter={e => { e.currentTarget.style.borderColor='var(--green)'; e.currentTarget.style.background='var(--green-bg)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.background='var(--bg3)'; }}
-                    onClick={(e) => { e.preventDefault(); if (onBeforeEnter) onBeforeEnter(); window.location.href=`/app?taskId=${encodeURIComponent(node.id||'')}&task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName)}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`; }}
+                    onClick={(e) => { e.preventDefault(); if (onBeforeEnter) onBeforeEnter(); window.location.href=`./app.html?taskId=${encodeURIComponent(node.id||'')}&task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName)}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`; }}
                     href="#">
                     <span style={{width:8,height:8,borderRadius:'50%',background:st.color,flexShrink:0}}></span>
                     <div style={{flex:1,minWidth:0}}>
@@ -3031,7 +3031,7 @@ ${task ? `\n当前任务提示词：\n${task.prompt || '(空)'}\n\n当前代码�
         )}
         <button className="node-sidebar-btn node-sidebar-btn-go" onClick={() => {
           if (onBeforeEnter) onBeforeEnter();
-          window.location.href = `/app?task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName||'')}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`;
+          window.location.href = `./app.html?task=${encodeURIComponent(node.label)}&room=${roomId}&name=${encodeURIComponent(userName||'')}&catId=${encodeURIComponent(node.category||'')}&catLabel=${encodeURIComponent(cat?.label||'')}&catColor=${encodeURIComponent(cat?.color||'')}`;
         }}>
           &#9654; 进入工作台
         </button>
