@@ -8,8 +8,6 @@
 
 ## 产品展示
 
-### 在线演示
-
 ![CODELAB 在线演示](docs/assets/product-showcase/live-demonstration.png)
 
 ### 系统设计
